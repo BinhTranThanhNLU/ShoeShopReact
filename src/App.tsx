@@ -21,6 +21,8 @@ import PureCounter from "@srexi/purecounterjs";
 import Header from "./components/HeaderAndFooter/Header";
 import Footer from "./components/HeaderAndFooter/Footer";
 import HomePage from "./pages/HomePage";
+import CategoryPage from "./pages/CategoryPage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
   useEffect(() => {
@@ -35,9 +37,10 @@ function App() {
   return (
     <>
       <Header />
-      <HomePage />
+      <CategoryPage />
       <Footer />
     </>
+   
   );
 }
 
