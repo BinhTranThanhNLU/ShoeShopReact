@@ -23,6 +23,8 @@ import Footer from "./components/HeaderAndFooter/Footer";
 import HomePage from "./pages/HomePage";
 import CategoryPage from "./pages/CategoryPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import SearchResultPage from "./pages/SearchResultPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 function App() {
   useEffect(() => {
@@ -37,7 +39,7 @@ function App() {
   return (
     <>
       <Header />
-      <CategoryPage />
+      <ProductDetailPage />
       <Footer />
     </>
    
