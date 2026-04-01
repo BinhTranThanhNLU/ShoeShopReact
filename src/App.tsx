@@ -25,6 +25,10 @@ import CategoryPage from "./pages/CategoryPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import SearchResultPage from "./pages/SearchResultPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import LoginPage from "./pages/LoginPage.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
+import NotFoundPage from "./pages/404.tsx";
 
 function App() {
   useEffect(() => {
@@ -39,10 +43,15 @@ function App() {
   return (
     <>
       <Header />
-      <ProductDetailPage />
+      {/*<ProductDetailPage />*/}
+      {/*  <CategoryPage/>*/}
+      {/*  <LoginPage/>*/}
+      {/*  <RegisterPage/>*/}
+      {/*  <ForgotPasswordPage/>*/}
+        <NotFoundPage/>
       <Footer />
     </>
-   
+
   );
 }
 
