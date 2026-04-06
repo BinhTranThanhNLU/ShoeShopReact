@@ -29,6 +29,9 @@ import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 import NotFoundPage from "./pages/404.tsx";
+import CartPage from "./pages/CartPage.tsx";
+import CheckoutPage from "./pages/CheckoutPage.tsx";
+import AccountPage from "./pages/AccountPage.tsx";
 
 function App() {
   useEffect(() => {
@@ -48,7 +51,10 @@ function App() {
       {/*  <LoginPage/>*/}
       {/*  <RegisterPage/>*/}
       {/*  <ForgotPasswordPage/>*/}
-        <NotFoundPage/>
+      {/* <NotFoundPage/> */}
+      {/* <CartPage /> */}
+      {/* <CheckoutPage /> */}
+      <AccountPage />
       <Footer />
     </>
 

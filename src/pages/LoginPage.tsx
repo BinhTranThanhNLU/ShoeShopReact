@@ -1,5 +1,5 @@
-import { PageTitle } from "../components/LoginComponent/PageTitle";
 import LoginForm from "../components/LoginComponent/LoginForm";
+import { PageTitle } from "../components/utils/PageTitle";
 
 const LoginPage = () => {
     return (
