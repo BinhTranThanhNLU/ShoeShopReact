@@ -1,4 +1,28 @@
+import { useEffect, useState } from "react";
+import type { CategoryModel } from "../../models/CategoryModel";
+import { getAllCategories } from "../../api/categoryApi";
+import { Link } from "react-router-dom";
+
 const Header = () => {
+
+  const [categories, setCategories] = useState<CategoryModel[]>([]);
+
+  useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          const data = await getAllCategories();
+          setCategories(data);
+        } catch (error: any) {
+          
+        } finally {
+          
+        }
+      };
+  
+      fetchCategories();
+    }, []);
+  
+
   return (
     <header id="header" className="header sticky-top">
       {/* Top Bar */}
@@ -160,77 +184,35 @@ const Header = () => {
           <nav id="navmenu" className="navmenu">
             <ul>
               <li>
-                <a href="index.html" className="active">
+                <Link to="/home" className="active">
                   Trang chủ
-                </a>
+                </Link>
               </li>
 
-              <li className="dropdown">
-                <a href="pages/product/category.html">
-                  <span>Giày thể thao</span>{" "}
-                  <i className="bi bi-chevron-down toggle-dropdown"></i>
-                </a>
-                <ul>
-                  <li>
-                    <a href="pages/product/category.html">Bóng đá</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Bóng rổ</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Bóng chuyền</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Chạy bộ</a>
-                  </li>
-                </ul>
-              </li>
-              <li className="dropdown">
-                <a href="pages/product/category.html">
-                  <span>Giày thời trang</span>{" "}
-                  <i className="bi bi-chevron-down toggle-dropdown"></i>
-                </a>
-                <ul>
-                  <li>
-                    <a href="pages/product/category.html">Giày nam</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Giày nữ</a>
-                  </li>
-                </ul>
-              </li>
-              <li className="dropdown">
-                <a href="pages/product/category.html">
-                  <span>Thương hiệu</span>{" "}
-                  <i className="bi bi-chevron-down toggle-dropdown"></i>
-                </a>
-                <ul>
-                  <li>
-                    <a href="pages/product/category.html">Adidas</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Asics</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Jodan</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Kamito</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Mizuno</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Nike</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Puma</a>
-                  </li>
-                  <li>
-                    <a href="pages/product/category.html">Under Amour</a>
-                  </li>
-                </ul>
-              </li>
+              {/* Render categories động */}
+              {categories.map((category) => (
+                <li
+                  key={category.id}
+                  className={category.subCategories && category.subCategories.length > 0 ? "dropdown" : ""}
+                >
+                  <Link to={`/category/${category.id}`}>
+                    <span>{category.name}</span>
+                    {category.subCategories && category.subCategories.length > 0 && (
+                      <i className="bi bi-chevron-down toggle-dropdown"></i>
+                    )}
+                  </Link>
+
+                  {category.subCategories?.length > 0 && (
+                    <ul>
+                      {category.subCategories.map((sub) => (
+                        <li key={sub.id}>
+                          <Link to={`/category/${sub.id}`}>{sub.name}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
 
               <li>
                 <a href="pages/info/about.html">Về chúng tôi</a>

@@ -13,6 +13,7 @@ import "drift-zoom/dist/drift-basic.css";
 import Header from "./components/HeaderAndFooter/Header";
 import Footer from "./components/HeaderAndFooter/Footer";
 import HomePage from "./pages/HomePage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
   useEffect(() => {
@@ -25,11 +26,15 @@ function App() {
   }, []);
 
   return (
-    <>
+    <BrowserRouter>
       <Header />
-      <HomePage />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
+        
+      </Routes>
       <Footer />
-    </>
+    </BrowserRouter>
 
   );
 }
