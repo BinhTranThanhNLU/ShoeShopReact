@@ -1,37 +1,18 @@
 // ===== Core React =====
 import { useEffect } from "react";
 
-// ===== Third-party UI libs =====
-import { Swiper, SwiperSlide } from "swiper/react";
-
 // ===== Animation / Effects =====
 import AOS from "aos";
 import "aos/dist/aos.css";
 
 // ===== Lightbox / Zoom =====
-import GLightbox from "glightbox";
 import "glightbox/dist/css/glightbox.min.css";
-import Drift from "drift-zoom";
 import "drift-zoom/dist/drift-basic.css";
-
-// ===== Counter =====
-import PureCounter from "@srexi/purecounterjs";
 
 // ===== UI Layout =====
 import Header from "./components/HeaderAndFooter/Header";
 import Footer from "./components/HeaderAndFooter/Footer";
 import HomePage from "./pages/HomePage";
-import CategoryPage from "./pages/CategoryPage";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import SearchResultPage from "./pages/SearchResultPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
-import LoginPage from "./pages/LoginPage.tsx";
-import RegisterPage from "./pages/RegisterPage.tsx";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
-import NotFoundPage from "./pages/404.tsx";
-import CartPage from "./pages/CartPage.tsx";
-import CheckoutPage from "./pages/CheckoutPage.tsx";
-import AccountPage from "./pages/AccountPage.tsx";
 
 function App() {
   useEffect(() => {
@@ -46,15 +27,7 @@ function App() {
   return (
     <>
       <Header />
-      {/*<ProductDetailPage />*/}
-      {/*  <CategoryPage/>*/}
-      {/*  <LoginPage/>*/}
-      {/*  <RegisterPage/>*/}
-      {/*  <ForgotPasswordPage/>*/}
-      {/* <NotFoundPage/> */}
-      {/* <CartPage /> */}
-      {/* <CheckoutPage /> */}
-      <AccountPage />
+      <HomePage />
       <Footer />
     </>
 
