@@ -1,36 +1,43 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../utils/ProductCard";
 import type { ProductModel } from "../../models/ProductModel";
-import { getProductsByCategory } from "../../api/productApi";
+import { getProductsByCategory, getProductsWithFilters } from "../../api/productApi";
 import { SpinningLoading } from "../utils/SpinningLoading";
 import { ErrorMessage } from "../utils/ErrorMessage";
 
-export interface ProductListProps {
+interface ProductListProps {
   categoryId: number;
   page: number;
+  filters: {
+    minPrice: string | null;
+    maxPrice: string | null;
+    brands: string[];
+    colors: string[];
+  };
   setTotalPages: (total: number) => void;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ categoryId, page, setTotalPages }) => {
+const ProductList: React.FC<ProductListProps> = ({ categoryId, page, filters, setTotalPages }) => {
   const [products, setProducts] = useState<ProductModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [httpError, setHttpError] = useState<string | null>(null);
 
+
   useEffect(() => {
-    const fetchCategoryProduct = async () => {
+    const fetchProductsWithFilters = async () => {
       try {
-        const data = await getProductsByCategory(categoryId, page);
+        const data = await getProductsWithFilters(categoryId, page, filters);
         setProducts(data.products);
         setTotalPages(data.totalPages);
-      } catch (error: any) {
-        setHttpError(error.message || "Error fetching products!");
+      } catch (err: any) {
+        setHttpError(err.message || "Failed to fetch !");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchCategoryProduct();
-  }, [categoryId, page]);
+    fetchProductsWithFilters();
+  }, [categoryId, page, filters, setTotalPages]);
 
   if (isLoading) return <SpinningLoading />;
   if (httpError) return <ErrorMessage message={httpError} />;

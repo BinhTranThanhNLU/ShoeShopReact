@@ -1,4 +1,6 @@
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+
 import BrandFilterWidget from "../components/CategoryComponent/BrandFilterWidget";
 import CategoryHeader from "../components/CategoryComponent/CategoryHeader";
 import ColorFilterWidget from "../components/CategoryComponent/ColorFilterWidget";
@@ -7,35 +9,69 @@ import ProductCategoriesWidget from "../components/CategoryComponent/ProductCate
 import ProductList from "../components/CategoryComponent/ProductList";
 import { PageTitle } from "../components/utils/PageTitle";
 import Pagination from "../components/utils/Pagination";
-import { useEffect, useState } from "react";
+
+import type { BrandModel } from "../models/BrandModel";
+import { getAllBrands } from "../api/brandApi";
 
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
-  const categoryId = id ? parseInt(id) : 1;
+  const categoryId = Number(id) || 1;
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const pageParam = searchParams.get("page");
-
-  const initialPage = pageParam ? parseInt(pageParam) : 0;
-  const [page, setPage] = useState<number>(initialPage);
+  const [brandList, setBrandList] = useState<BrandModel[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
 
-  // Update url khi doi page
-  useEffect(() => {
-    setSearchParams({ page: (page + 1).toString() });
-  }, [page]);
+  // 1. Lấy dữ liệu từ URL
+  const page = Number(searchParams.get("page")) || 0;
+  const filters = useMemo(
+    () => ({
+      minPrice: searchParams.get("minPrice"),
+      maxPrice: searchParams.get("maxPrice"),
+      brands: searchParams.getAll("brands"),
+      colors: searchParams.getAll("colors"),
+    }),
+    [searchParams],
+  );
 
-  // Reset page khi đổi category
+  // 2. Hàm cập nhật URL tập trung
+  const updateQueryParams = useCallback(
+    (newParams: Record<string, any>) => {
+      setSearchParams((prev) => {
+        const nextParams = new URLSearchParams(prev);
+        Object.entries(newParams).forEach(([key, value]) => {
+          if (value === null || value === undefined || value === "") {
+            nextParams.delete(key);
+          } else if (Array.isArray(value)) {
+            nextParams.delete(key);
+            value.forEach((v) => nextParams.append(key, v.toString()));
+          } else {
+            nextParams.set(key, value.toString());
+          }
+        });
+        return nextParams;
+      });
+    },
+    [setSearchParams],
+  );
+
+  // 3. Fetch Brand List
   useEffect(() => {
-    setPage(0);
-    setSearchParams({ page: "0" });
+    getAllBrands()
+      .then(setBrandList)
+      .catch((err) => console.error("Failed to fetch brands", err));
+  }, []);
+
+  // 4. Reset page khi thay đổi Category
+  useEffect(() => {
+    if (!searchParams.has("page")) {
+      updateQueryParams({ page: 0 });
+    }
   }, [categoryId]);
 
-  // Scroll lên đầu khi đổi page
+  // 5. Tự động scroll khi thay đổi trang hoặc filter
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [page]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page, categoryId]);
 
   return (
     <main className="main">
@@ -49,24 +85,41 @@ const CategoryPage = () => {
 
       <div className="container">
         <div className="row">
-          <div className="col-lg-4 sidebar">
+          <aside className="col-lg-4 sidebar">
             <div className="widgets-container">
               <ProductCategoriesWidget />
-              <PricingRangeWidget />
-              <ColorFilterWidget />
-              <BrandFilterWidget />
+              <PricingRangeWidget
+                value={{ min: filters.minPrice, max: filters.maxPrice }}
+                onChange={(min, max) =>
+                  updateQueryParams({ minPrice: min, maxPrice: max, page: 0 })
+                }
+              />
+              <ColorFilterWidget
+                selectedColors={filters.colors}
+                onChange={(colors) => updateQueryParams({ colors, page: 0 })}
+              />
+              <BrandFilterWidget
+                brandList={brandList}
+                selectedBrands={filters.brands}
+                onChange={(brands) => updateQueryParams({ brands, page: 0 })}
+              />
             </div>
-          </div>
+          </aside>
 
-          <div className="col-lg-8">
+          <section className="col-lg-8">
             <CategoryHeader />
             <ProductList
               categoryId={categoryId}
               page={page}
+              filters={filters}
               setTotalPages={setTotalPages}
             />
-            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
-          </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              setPage={(newPage) => updateQueryParams({ page: newPage })}
+            />
+          </section>
         </div>
       </div>
     </main>

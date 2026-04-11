@@ -46,28 +46,6 @@ const CategoryHeader = () => {
             </div>
           </div>
 
-          <div className="row mt-3">
-            <div className="col-12" data-aos="fade-up" data-aos-delay="200">
-              <div className="active-filters">
-                <span className="active-filter-label">Lọc theo:</span>
-                <div className="filter-tags">
-                  <span className="filter-tag">
-                    Giày bóng đá{" "}
-                    <button className="filter-remove">
-                      <i className="bi bi-x"></i>
-                    </button>
-                  </span>
-                  <span className="filter-tag">
-                    50.000đ to 100.000đ{" "}
-                    <button className="filter-remove">
-                      <i className="bi bi-x"></i>
-                    </button>
-                  </span>
-                  <button className="clear-all-btn">Xóa</button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>

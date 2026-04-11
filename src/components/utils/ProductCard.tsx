@@ -1,5 +1,6 @@
 import type React from "react";
 import type { ProductModel } from "../../models/ProductModel";
+import { Link } from "react-router-dom";
 
 const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
 
@@ -45,7 +46,7 @@ const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
         <div className="product-details">
           <div className="product-category">{product.category}</div>
           <h4 className="product-title">
-            <a href="product-details.html">{product.name}</a>
+            <Link to={`/product-detail/${product.id}`}>{product.name}</Link>
           </h4>
           <div className="product-meta">
             <div className="product-price">{product.price.toLocaleString()}đ</div>

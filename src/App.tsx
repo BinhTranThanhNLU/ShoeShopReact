@@ -15,6 +15,7 @@ import Footer from "./components/HeaderAndFooter/Footer";
 import HomePage from "./pages/HomePage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CategoryPage from "./pages/CategoryPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 function App() {
   useEffect(() => {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/category/:id" element={<CategoryPage />} />
+        <Route path="/product-detail/:id" element={<ProductDetailPage />} />
         
       </Routes>
       <Footer />
