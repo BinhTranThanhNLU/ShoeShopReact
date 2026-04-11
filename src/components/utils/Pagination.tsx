@@ -1,4 +1,18 @@
-const Pagination = () => {
+import type React from "react";
+
+interface PaginationProps {
+  page: number;
+  totalPages: number;
+  setPage: (page: number) => void;
+}
+
+const Pagination: React.FC<PaginationProps> = ({
+  page,
+  totalPages,
+  setPage,
+}) => {
+  const pages = [...Array(totalPages).keys()]; // [0,1,2,...]
+
   return (
     <section id="category-pagination" className="category-pagination section">
       <div className="container">
@@ -6,41 +20,30 @@ const Pagination = () => {
           className="d-flex justify-content-center"
           aria-label="Page navigation"
         >
-          <ul>
-            <li>
-              <a href="#" aria-label="Previous page">
-                <i className="bi bi-arrow-left"></i>
-                <span className="d-none d-sm-inline">Previous</span>
-              </a>
+          <ul className="pagination">
+            {/* Previous */}
+            <li className={`page-item ${page === 0 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setPage(page - 1)}>
+                ← Trước
+              </button>
             </li>
 
-            <li>
-              <a href="#" className="active">
-                1
-              </a>
-            </li>
-            <li>
-              <a href="#">2</a>
-            </li>
-            <li>
-              <a href="#">3</a>
-            </li>
-            <li className="ellipsis">...</li>
-            <li>
-              <a href="#">8</a>
-            </li>
-            <li>
-              <a href="#">9</a>
-            </li>
-            <li>
-              <a href="#">10</a>
-            </li>
+            {/* Page numbers */}
+            {pages.map((p) => (
+              <li key={p} className={`page-item ${p === page ? "active" : ""}`}>
+                <button className="page-link" onClick={() => setPage(p)}>
+                  {p + 1}
+                </button>
+              </li>
+            ))}
 
-            <li>
-              <a href="#" aria-label="Next page">
-                <span className="d-none d-sm-inline">Next</span>
-                <i className="bi bi-arrow-right"></i>
-              </a>
+            {/* Next */}
+            <li
+              className={`page-item ${page === totalPages - 1 ? "disabled" : ""}`}
+            >
+              <button className="page-link" onClick={() => setPage(page + 1)}>
+                Sau →
+              </button>
             </li>
           </ul>
         </nav>

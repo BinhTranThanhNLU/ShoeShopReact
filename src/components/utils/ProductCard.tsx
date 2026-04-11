@@ -1,17 +1,24 @@
-const ProductCard = () => {
+import type React from "react";
+import type { ProductModel } from "../../models/ProductModel";
+
+const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
+
+  const mainImg = product.images?.[0]?.imageUrl || "/assets/img/no-image.png";
+  const hoverImg = product.images?.[1]?.imageUrl || "/assets/img/no-image.png";
+
   return (
     <div className="col-6 col-xl-4">
       <div className="product-card" data-aos="zoom-in">
         <div className="product-image">
           <img
-            src="img/product/product-f-1.webp"
+            src={mainImg}
             className="main-image img-fluid"
-            alt="Product"
+            alt={product.name}
           />
           <img
-            src="img/product/product-f-2.webp"
+            src={hoverImg}
             className="hover-image img-fluid"
-            alt="Product Variant"
+            alt={product.name}
           />
 
           <div className="product-overlay">
@@ -36,12 +43,12 @@ const ProductCard = () => {
           </div>
         </div>
         <div className="product-details">
-          <div className="product-category">Women's Fashion</div>
+          <div className="product-category">{product.category}</div>
           <h4 className="product-title">
-            <a href="product-details.html">Tempor Incididunt</a>
+            <a href="product-details.html">{product.name}</a>
           </h4>
           <div className="product-meta">
-            <div className="product-price">$129.00</div>
+            <div className="product-price">{product.price.toLocaleString()}đ</div>
             <div className="product-rating">
               <i className="bi bi-star-fill"></i>
               4.8 <span>(42)</span>

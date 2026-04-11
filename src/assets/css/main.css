@@ -12631,5 +12631,29 @@ section,
   transform: translateX(4px); /* Hiệu ứng đẩy nhẹ */
 }
 
+.pagination {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+}
+
+.page-item .page-link {
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  background: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.page-item.active .page-link {
+  background: #0d6efd;
+  color: white;
+}
+
+.page-item.disabled .page-link {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
 
