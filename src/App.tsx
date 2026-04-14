@@ -16,6 +16,12 @@ import HomePage from "./pages/HomePage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import LoginPage from "./pages/LoginPage.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx";
+import AccountPage from "./pages/AccountPage.tsx";
+import WishlistTab from "./components/AccountComponent/WishlistTab.tsx";
+import CartPage from "./pages/CartPage.tsx";
+import {ResetPasswordPage} from "./pages/ResetPasswordPage.tsx";
 
 function App() {
   useEffect(() => {
@@ -35,7 +41,13 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/product-detail/:id" element={<ProductDetailPage />} />
-        
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/wishlist" element={<WishlistTab />} />
+          <Route path="/cart" element={<CartPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
       </Routes>
       <Footer />
     </BrowserRouter>
