@@ -1,210 +1,191 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
 const SettingTab = () => {
+  // Quản lý trạng thái thông tin cá nhân
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: ''
+  });
+
+  // Quản lý trạng thái đổi mật khẩu
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  // 1. Lấy thông tin người dùng hiện tại khi component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8080/api/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        // Cập nhật state với dữ liệu từ Backend UserDTO
+        setFormData({
+          fullName: response.data.fullName || '',
+          email: response.data.email || '',
+          phone: response.data.phone || ''
+        });
+      } catch (error) {
+        console.error("Lỗi khi tải thông tin người dùng:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  // 2. Xử lý cập nhật thông tin cá nhân (PatchMapping /api/users)
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      // Gửi request tới UserController.updateUser
+      await axios.patch('http://localhost:8080/api/users', {
+        fullName: formData.fullName,
+        phone: formData.phone
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert("Thay đổi của bạn đã được lưu thành công!");
+    } catch (error) {
+      console.error("Lỗi cập nhật:", error);
+      alert("Không thể lưu thay đổi. Vui lòng thử lại.");
+    }
+  };
+
+  // 3. Xử lý cập nhật mật khẩu
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      // Bạn có thể sử dụng endpoint /api/auth/reset-password hoặc tạo một endpoint đổi mật khẩu riêng
+      await axios.post('http://localhost:8080/api/auth/reset-password', {
+        token: token, // Hoặc logic reset password của bạn
+        newPassword: passwordData.newPassword
+      });
+      alert("Mật khẩu của bạn đã được cập nhật thành công!");
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      alert("Cập nhật mật khẩu thất bại.");
+    }
+  };
+
   return (
-    <div className="tab-pane fade" id="settings">
-      <div className="section-header" data-aos="fade-up">
-        <h2>Cài đặt tài khoản</h2>
-      </div>
-
-      <div className="settings-content">
-        {/* Thông tin cá nhân */}
-        <div className="settings-section" data-aos="fade-up">
-          <h3>Thông tin cá nhân</h3>
-          <form className="php-email-form settings-form">
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label htmlFor="firstName" className="form-label">
-                  Họ
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="firstName"
-                  value="Sarah"
-                  required
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="lastName" className="form-label">
-                  Tên
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="lastName"
-                  value="Anderson"
-                  required
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="email" className="form-label">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  value="sarah@example.com"
-                  required
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="phone" className="form-label">
-                  Số điện thoại
-                </label>
-                <input
-                  type="tel"
-                  className="form-control"
-                  id="phone"
-                  value="+84 912 345 678"
-                />
-              </div>
-            </div>
-
-            <div className="form-buttons">
-              <button type="submit" className="btn-save">
-                Lưu thay đổi
-              </button>
-            </div>
-
-            <div className="loading">Đang xử lý...</div>
-            <div className="error-message"></div>
-            <div className="sent-message">
-              Thay đổi của bạn đã được lưu thành công!
-            </div>
-          </form>
+      <div className="tab-pane fade" id="settings">
+        <div className="section-header" data-aos="fade-up">
+          <h2>Cài đặt tài khoản</h2>
         </div>
 
-        {/* Tùy chọn email */}
-        <div
-          className="settings-section"
-          data-aos="fade-up"
-          data-aos-delay="100"
-        >
-          <h3>Tùy chọn email</h3>
-          <div className="preferences-list">
-            <div className="preference-item">
-              <div className="preference-info">
-                <h4>Cập nhật đơn hàng</h4>
-                <p>Nhận thông báo về trạng thái đơn hàng của bạn</p>
+        <div className="settings-content">
+          {/* Thông tin cá nhân */}
+          <div className="settings-section" data-aos="fade-up">
+            <h3>Thông tin cá nhân</h3>
+            <form className="settings-form" onSubmit={handleUpdateProfile}>
+              <div className="row g-3">
+                <div className="col-md-12">
+                  <label htmlFor="fullName" className="form-label">Họ và Tên</label>
+                  <input
+                      type="text"
+                      className="form-control"
+                      id="fullName"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      required
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="email" className="form-label">Email</label>
+                  <input
+                      type="email"
+                      className="form-control"
+                      id="email"
+                      value={formData.email}
+                      disabled
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="phone" className="form-label">Số điện thoại</label>
+                  <input
+                      type="tel"
+                      className="form-control"
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
               </div>
-              <div className="form-check form-switch">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="orderUpdates"
-                  checked
-                />
-              </div>
-            </div>
 
-            <div className="preference-item">
-              <div className="preference-info">
-                <h4>Khuyến mãi</h4>
-                <p>Nhận email về các chương trình khuyến mãi và ưu đãi mới</p>
+              <div className="form-buttons">
+                <button type="submit" className="btn-save">Lưu thay đổi</button>
               </div>
-              <div className="form-check form-switch">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="promotions"
-                />
-              </div>
-            </div>
+            </form>
+          </div>
 
-            <div className="preference-item">
-              <div className="preference-info">
-                <h4>Bản tin</h4>
-                <p>Đăng ký nhận bản tin hàng tuần của chúng tôi</p>
+          {/* Cài đặt bảo mật */}
+          <div className="settings-section" data-aos="fade-up" data-aos-delay="200">
+            <h3>Bảo mật</h3>
+            <form className="settings-form" onSubmit={handleUpdatePassword}>
+              <div className="row g-3">
+                <div className="col-md-12">
+                  <label htmlFor="currentPassword" className="form-label">Mật khẩu hiện tại</label>
+                  <input
+                      type="password"
+                      className="form-control"
+                      id="currentPassword"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                      required
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="newPassword" className="form-label">Mật khẩu mới</label>
+                  <input
+                      type="password"
+                      className="form-control"
+                      id="newPassword"
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                      required
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="confirmPassword" className="form-label">Xác nhận mật khẩu</label>
+                  <input
+                      type="password"
+                      className="form-control"
+                      id="confirmPassword"
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                      required
+                  />
+                </div>
               </div>
-              <div className="form-check form-switch">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="newsletter"
-                  checked
-                />
+
+              <div className="form-buttons">
+                <button type="submit" className="btn-save">Cập nhật mật khẩu</button>
               </div>
+            </form>
+          </div>
+
+          {/* Xóa tài khoản */}
+          <div className="settings-section danger-zone" data-aos="fade-up" data-aos-delay="300">
+            <h3>Xóa tài khoản</h3>
+            <div className="danger-zone-content">
+              <p>Một khi bạn xóa tài khoản, sẽ không thể khôi phục lại. Hãy chắc chắn trước khi thực hiện.</p>
+              <button type="button" className="btn-danger">Xóa tài khoản</button>
             </div>
           </div>
         </div>
-
-        {/* Cài đặt bảo mật */}
-        <div
-          className="settings-section"
-          data-aos="fade-up"
-          data-aos-delay="200"
-        >
-          <h3>Bảo mật</h3>
-          <form className="php-email-form settings-form">
-            <div className="row g-3">
-              <div className="col-md-12">
-                <label htmlFor="currentPassword" className="form-label">
-                  Mật khẩu hiện tại
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="currentPassword"
-                  required
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="newPassword" className="form-label">
-                  Mật khẩu mới
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="newPassword"
-                  required
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="confirmPassword" className="form-label">
-                  Xác nhận mật khẩu
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="confirmPassword"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-buttons">
-              <button type="submit" className="btn-save">
-                Cập nhật mật khẩu
-              </button>
-            </div>
-
-            <div className="loading">Đang xử lý...</div>
-            <div className="error-message"></div>
-            <div className="sent-message">
-              Mật khẩu của bạn đã được cập nhật thành công!
-            </div>
-          </form>
-        </div>
-
-        {/* Xóa tài khoản */}
-        <div
-          className="settings-section danger-zone"
-          data-aos="fade-up"
-          data-aos-delay="300"
-        >
-          <h3>Xóa tài khoản</h3>
-          <div className="danger-zone-content">
-            <p>
-              Một khi bạn xóa tài khoản, sẽ không thể khôi phục lại. Hãy chắc
-              chắn trước khi thực hiện.
-            </p>
-            <button type="button" className="btn-danger">
-              Xóa tài khoản
-            </button>
-          </div>
-        </div>
       </div>
-    </div>
   );
 };
 

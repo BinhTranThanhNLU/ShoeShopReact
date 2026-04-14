@@ -1,6 +1,6 @@
 import type React from "react";
 import type { ProductModel } from "../../models/ProductModel";
-
+import { Link } from "react-router-dom";
 const ListProductHome:React.FC<{products:ProductModel[]}> = ({products}) => {
   return (
     <section id="best-sellers" className="best-sellers section">
@@ -42,9 +42,9 @@ const ListProductHome:React.FC<{products:ProductModel[]}> = ({products}) => {
                 <div className="product-info">
                   <div className="product-category">{product.category}</div>
                   <h4 className="product-name">
-                    <a href="pages/product/product-details.html">
-                      {product.name}
-                    </a>
+                      <Link to={`/product/${product.id}`}>
+                          {product.name}
+                      </Link>
                   </h4>
                   <div className="product-rating">
                     <div className="stars">
