@@ -22,6 +22,7 @@ import AccountPage from "./pages/AccountPage.tsx";
 import WishlistTab from "./components/AccountComponent/WishlistTab.tsx";
 import CartPage from "./pages/CartPage.tsx";
 import {ResetPasswordPage} from "./pages/ResetPasswordPage.tsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 
 function App() {
   useEffect(() => {
@@ -47,7 +48,7 @@ function App() {
           <Route path="/wishlist" element={<WishlistTab />} />
           <Route path="/cart" element={<CartPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>
