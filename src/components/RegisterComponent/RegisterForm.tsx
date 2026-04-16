@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type {RegisterRequest} from "../../modelRequest/RegisterRequest";
-import { API_BASE_URL } from "../../../../../../../../../../Year4/ChuyenDeWeb/ShoeShopReact/src/config/config";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { FormHeader } from "../utils/FormHeader";
 import type {UserModel} from "../../models/UserModel";
+import { API_BASE_URL } from "../../config/config";
 
 export const RegisterForm = () => {
     const [formData, setFormData] = useState<RegisterRequest>({
