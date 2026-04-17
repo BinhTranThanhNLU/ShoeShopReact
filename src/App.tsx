@@ -21,8 +21,9 @@ import RegisterPage from "./pages/RegisterPage.tsx";
 import AccountPage from "./pages/AccountPage.tsx";
 import WishlistTab from "./components/AccountComponent/WishlistTab.tsx";
 import CartPage from "./pages/CartPage.tsx";
-import {ResetPasswordPage} from "./pages/ResetPasswordPage.tsx";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage.tsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
+import { GoogleCallback } from "./components/LoginComponent/GoogleCallback.tsx";
 
 function App() {
   useEffect(() => {
@@ -42,17 +43,16 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/product-detail/:id" element={<ProductDetailPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/account" element={<AccountPage />} />
-          <Route path="/wishlist" element={<WishlistTab />} />
-          <Route path="/cart" element={<CartPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/google/callback" element={<GoogleCallback />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/account" element={<AccountPage />} />
+        <Route path="/cart" element={<CartPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>
-
   );
 }
 

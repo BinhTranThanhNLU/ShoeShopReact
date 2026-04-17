@@ -175,15 +175,6 @@ const SettingTab = () => {
               </div>
             </form>
           </div>
-
-          {/* Xóa tài khoản */}
-          <div className="settings-section danger-zone" data-aos="fade-up" data-aos-delay="300">
-            <h3>Xóa tài khoản</h3>
-            <div className="danger-zone-content">
-              <p>Một khi bạn xóa tài khoản, sẽ không thể khôi phục lại. Hãy chắc chắn trước khi thực hiện.</p>
-              <button type="button" className="btn-danger">Xóa tài khoản</button>
-            </div>
-          </div>
         </div>
       </div>
   );
