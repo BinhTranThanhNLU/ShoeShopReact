@@ -1,7 +1,10 @@
 import type React from "react";
 import type { ProductModel } from "../../models/ProductModel";
 import { Link } from "react-router-dom";
-const ListProductHome:React.FC<{products:ProductModel[]}> = ({products}) => {
+
+const ListProductHome: React.FC<{ products: ProductModel[] }> = ({
+  products,
+}) => {
   return (
     <section id="best-sellers" className="best-sellers section">
       {/* Section Title  */}
@@ -15,12 +18,16 @@ const ListProductHome:React.FC<{products:ProductModel[]}> = ({products}) => {
 
       <div className="container" data-aos="fade-up" data-aos-delay="100">
         <div className="row g-5">
-          {products.slice(0,8).map((product) => (
+          {products.slice(0, 8).map((product) => (
             <div className="col-lg-3 col-md-6" key={product.id}>
               <div className="product-item">
                 <div className="product-image">
                   <img
-                    src={product.images && product.images.length > 0 ? product.images[0].imageUrl : "/placeholder.jpg"}
+                    src={
+                      product.images && product.images.length > 0
+                        ? product.images[0].imageUrl
+                        : "/placeholder.jpg"
+                    }
                     alt={product.name}
                     className="img-fluid"
                     loading="lazy"
@@ -42,9 +49,7 @@ const ListProductHome:React.FC<{products:ProductModel[]}> = ({products}) => {
                 <div className="product-info">
                   <div className="product-category">{product.category}</div>
                   <h4 className="product-name">
-                      <Link to={`/product/${product.id}`}>
-                          {product.name}
-                      </Link>
+                    <Link to={`/product/${product.id}`}>{product.name}</Link>
                   </h4>
                   <div className="product-rating">
                     <div className="stars">
@@ -54,9 +59,10 @@ const ListProductHome:React.FC<{products:ProductModel[]}> = ({products}) => {
                       <i className="bi bi-star-fill"></i>
                       <i className="bi bi-star"></i>
                     </div>
-                    
                   </div>
-                  <div className="product-price">{product.price.toLocaleString()}đ</div>
+                  <div className="product-price">
+                    {product.price.toLocaleString()}đ
+                  </div>
                 </div>
               </div>
             </div>

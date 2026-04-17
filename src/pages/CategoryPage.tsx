@@ -11,7 +11,7 @@ import { PageTitle } from "../components/utils/PageTitle";
 import Pagination from "../components/utils/Pagination";
 
 import type { BrandModel } from "../models/BrandModel";
-import { getAllBrands } from "../api/brandApi";
+import { brandApi } from "../api/brandApi";
 
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -56,7 +56,8 @@ const CategoryPage = () => {
 
   // 3. Fetch Brand List
   useEffect(() => {
-    getAllBrands()
+    brandApi
+      .getAllBrands()
       .then(setBrandList)
       .catch((err) => console.error("Failed to fetch brands", err));
   }, []);

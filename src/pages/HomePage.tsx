@@ -5,18 +5,17 @@ import PromoCard from "../components/HomeComponent/PromoCard";
 import type { ProductModel } from "../models/ProductModel";
 import { SpinningLoading } from "../components/utils/SpinningLoading";
 import { ErrorMessage } from "../components/utils/ErrorMessage";
-import { getAllProducts } from "../api/productApi";
+import { productApi } from "../api/productApi";
 
 const HomePage = () => {
-
   const [products, setProducts] = useState<ProductModel[]>([]);
-  const [isLoading,setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [httpError, setHttpError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getAllProducts();
+        const data = await productApi.getAllProducts();
         setProducts(data);
       } catch (error: any) {
         setHttpError(error.message || "Error fetching products");
@@ -35,7 +34,7 @@ const HomePage = () => {
     <main className="main">
       <Hero />
       <PromoCard />
-      <ListProductHome products={products}/>
+      <ListProductHome products={products} />
     </main>
   );
 };

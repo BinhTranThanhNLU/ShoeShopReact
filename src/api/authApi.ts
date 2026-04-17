@@ -1,11 +1,28 @@
-import axios from 'axios';
-import type {ForgotPasswordRequest} from '../modelRequest/ForgotPasswordRequest';
-
-const API_URL = 'http://localhost:8080/api/auth';
+import type { ForgotPasswordRequest } from "../modelRequest/ForgotPasswordRequest";
+import type { LoginRequest } from "../modelRequest/LoginRequest";
+import type { LoginResponse } from "../modelResponse/LoginResponse";
+import axiosClient from "./axiosClient";
 
 export const authApi = {
-    forgotPassword: async (data: ForgotPasswordRequest) => {
-        const response = await axios.post(`${API_URL}/forgot-password`, data);
-        return response.data;
-    }
+  login: async (data: LoginRequest): Promise<LoginResponse> => {
+    const response = await axiosClient.post("/auth/login", data);
+    return response.data;
+  },
+
+  forgotPassword: async (data: ForgotPasswordRequest) => {
+    const response = await axiosClient.post("/auth/forgot-password", data);
+    return response.data;
+  },
+
+  googleLogin: async () => {
+    const response = await axiosClient.get("/auth/google");
+    return response.data;
+  },
+
+  googleCallback: async (code: string): Promise<LoginResponse> => {
+    const response = await axiosClient.get(`/auth/google/callback`, {
+      params: { code },
+    });
+    return response.data;
+  },
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../utils/ProductCard";
 import type { ProductModel } from "../../models/ProductModel";
-import { getProductsByCategory, getProductsWithFilters } from "../../api/productApi";
+import { productApi } from "../../api/productApi";
 import { SpinningLoading } from "../utils/SpinningLoading";
 import { ErrorMessage } from "../utils/ErrorMessage";
 
@@ -17,16 +17,24 @@ interface ProductListProps {
   setTotalPages: (total: number) => void;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ categoryId, page, filters, setTotalPages }) => {
+const ProductList: React.FC<ProductListProps> = ({
+  categoryId,
+  page,
+  filters,
+  setTotalPages,
+}) => {
   const [products, setProducts] = useState<ProductModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [httpError, setHttpError] = useState<string | null>(null);
 
-
   useEffect(() => {
     const fetchProductsWithFilters = async () => {
       try {
-        const data = await getProductsWithFilters(categoryId, page, filters);
+        const data = await productApi.getProductsWithFilters(
+          categoryId,
+          page,
+          filters,
+        );
         setProducts(data.products);
         setTotalPages(data.totalPages);
       } catch (err: any) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CategoryModel } from "../../models/CategoryModel";
-import { getAllCategories } from "../../api/categoryApi";
+import { categoryApi } from "../../api/categoryApi";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -14,7 +14,7 @@ const Header = () => {
     // 1. Lấy danh sách danh mục
     const fetchCategories = async () => {
       try {
-        const data = await getAllCategories();
+        const data = await categoryApi.getAllCategories();
         setCategories(data);
       } catch (error: any) {
         console.error("Lỗi lấy danh mục:", error);
