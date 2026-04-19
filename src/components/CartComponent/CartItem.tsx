@@ -1,4 +1,10 @@
-const CartItem = () => {
+import type { CartItemModel } from "../../models/CartItemModel";
+
+interface CartItemProps {
+  item: CartItemModel;
+}
+
+const CartItem: React.FC<CartItemProps> = ({ item }) => {
   return (
     <div className="cart-item">
       <div className="row align-items-center">
@@ -6,17 +12,17 @@ const CartItem = () => {
           <div className="product-info d-flex align-items-center">
             <div className="product-image">
               <img
-                src="img/product/product-1.webp"
-                alt="Product"
+                src={item.imageUrl || "/img/product/product-1.webp"}
+                alt={item.productName}
                 className="img-fluid"
                 loading="lazy"
               />
             </div>
             <div className="product-details">
-              <h6 className="product-title">Lorem ipsum dolor sit amet</h6>
+              <h6 className="product-title">{item.productName}</h6>
               <div className="product-meta">
-                <span className="product-color">Màu: đen</span>
-                <span className="product-size">Kích thước: US 10</span>
+                <span className="product-color">Màu: {item.color}</span>
+                <span className="product-size">Kích thước: {item.size}</span>
               </div>
               <button className="remove-item" type="button">
                 <i className="bi bi-trash"></i> Xóa
@@ -26,7 +32,7 @@ const CartItem = () => {
         </div>
         <div className="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
           <div className="price-tag">
-            <span className="current-price">1.000.000đ</span>
+            <span className="current-price">{item.unitPrice.toLocaleString()}đ</span>
           </div>
         </div>
         <div className="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
@@ -37,9 +43,10 @@ const CartItem = () => {
             <input
               type="number"
               className="quantity-input"
-              value="1"
+              value={item.quantity}
+              readOnly
               min="1"
-              max="10"
+              max={item.availableStock}
             />
             <button className="quantity-btn increase">
               <i className="bi bi-plus"></i>
@@ -48,7 +55,7 @@ const CartItem = () => {
         </div>
         <div className="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
           <div className="item-total">
-            <span>2.000.000đ</span>
+            <span>{item.lineTotal.toLocaleString()}đ</span>
           </div>
         </div>
       </div>

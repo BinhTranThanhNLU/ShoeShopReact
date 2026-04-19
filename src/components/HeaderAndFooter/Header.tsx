@@ -3,11 +3,13 @@ import type { CategoryModel } from "../../models/CategoryModel";
 import { categoryApi } from "../../api/categoryApi";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { cartApi } from "../../api/cartApi";
 
 const Header = () => {
   const [categories, setCategories] = useState<CategoryModel[]>([]);
   // Thêm state để lưu thông tin người dùng
   const [user, setUser] = useState<any>(null);
+  const [cartItemCount, setCartItemCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,14 +40,43 @@ const Header = () => {
       }
     };
 
+    // 3. Lấy số lượng sản phẩm trong giỏ
+    const fetchCartCount = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setCartItemCount(0);
+        return;
+      }
+
+      try {
+        const cart = await cartApi.getMyCart();
+        setCartItemCount(cart.totalItems || 0);
+      } catch (error) {
+        console.error("Lỗi lấy giỏ hàng:", error);
+        setCartItemCount(0);
+      }
+    };
+
+    const handleCartUpdated = () => {
+      fetchCartCount();
+    };
+
+    window.addEventListener("cart-updated", handleCartUpdated);
+
     fetchCategories();
     fetchUserData();
+    fetchCartCount();
+
+    return () => {
+      window.removeEventListener("cart-updated", handleCartUpdated);
+    };
   }, []);
 
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
     localStorage.removeItem("token");
     setUser(null);
+    setCartItemCount(0);
     navigate("/login");
   };
 
@@ -159,7 +190,7 @@ const Header = () => {
 
                 <Link to="/cart" className="header-action-btn">
                   <i className="bi bi-cart3"></i>
-                  <span className="badge">3</span>
+                  <span className="badge">{cartItemCount}</span>
                 </Link>
               </div>
             </div>

@@ -1,11 +1,43 @@
 import type React from "react";
 import type { ProductModel } from "../../models/ProductModel";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { cartApi } from "../../api/cartApi";
+import { useState } from "react";
 
 const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const navigate = useNavigate();
 
   const mainImg = product.images?.[0]?.imageUrl || "/assets/img/no-image.png";
   const hoverImg = product.images?.[1]?.imageUrl || "/assets/img/no-image.png";
+
+  const handleAddToCart = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const inStockVariant = product.variants?.find((variant) => variant.stockQuantity > 0);
+    if (!inStockVariant) {
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      await cartApi.addItemToCart({
+        variantId: inStockVariant.id,
+        color: inStockVariant.color,
+        size: inStockVariant.size,
+        quantity: 1,
+      });
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (error: any) {
+      console.error(error?.response?.data?.message || "Không thể thêm sản phẩm vào giỏ hàng");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   return (
     <div className="col-6 col-xl-4">
@@ -37,6 +69,8 @@ const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
                 className="action-btn"
                 data-bs-toggle="tooltip"
                 title="Add to Cart"
+                onClick={handleAddToCart}
+                disabled={isAddingToCart}
               >
                 <i className="bi bi-cart-plus"></i>
               </button>

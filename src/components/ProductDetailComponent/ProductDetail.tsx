@@ -132,7 +132,11 @@ const ProductDetail: React.FC<{ product: ProductModel }> = ({ product }) => {
         </div>
 
         {/* Action */}
-        <ProductAction /* currentVariant={currentVariant} */ />
+        <ProductAction
+          currentVariant={currentVariant}
+          selectedColor={selectedColor}
+          selectedSize={selectedSize}
+        />
         {/* Benefits List */}
         <BenefitList />
       </div>

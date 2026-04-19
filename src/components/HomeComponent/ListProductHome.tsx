@@ -1,10 +1,43 @@
 import type React from "react";
 import type { ProductModel } from "../../models/ProductModel";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { cartApi } from "../../api/cartApi";
+import { useState } from "react";
 
 const ListProductHome: React.FC<{ products: ProductModel[] }> = ({
   products,
 }) => {
+  const navigate = useNavigate();
+  const [addingProductId, setAddingProductId] = useState<number | null>(null);
+
+  const handleAddToCart = async (product: ProductModel) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const inStockVariant = product.variants?.find((variant) => variant.stockQuantity > 0);
+    if (!inStockVariant) {
+      return;
+    }
+
+    try {
+      setAddingProductId(product.id);
+      await cartApi.addItemToCart({
+        variantId: inStockVariant.id,
+        color: inStockVariant.color,
+        size: inStockVariant.size,
+        quantity: 1,
+      });
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (error: any) {
+      console.error(error?.response?.data?.message || "Không thể thêm sản phẩm vào giỏ hàng");
+    } finally {
+      setAddingProductId(null);
+    }
+  };
+
   return (
     <section id="best-sellers" className="best-sellers section">
       {/* Section Title  */}
@@ -44,12 +77,18 @@ const ListProductHome: React.FC<{ products: ProductModel[] }> = ({
                       <i className="bi bi-zoom-in"></i>
                     </button>
                   </div>
-                  <button className="cart-btn">Thêm vào giỏ</button>
+                  <button
+                    className="cart-btn"
+                    onClick={() => handleAddToCart(product)}
+                    disabled={addingProductId === product.id}
+                  >
+                    {addingProductId === product.id ? "Đang thêm..." : "Thêm vào giỏ"}
+                  </button>
                 </div>
                 <div className="product-info">
                   <div className="product-category">{product.category}</div>
                   <h4 className="product-name">
-                    <Link to={`/product/${product.id}`}>{product.name}</Link>
+                    <Link to={`/product-detail/${product.id}`}>{product.name}</Link>
                   </h4>
                   <div className="product-rating">
                     <div className="stars">

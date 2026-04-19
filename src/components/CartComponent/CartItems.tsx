@@ -1,6 +1,11 @@
 import CartItem from "./CartItem";
+import type { CartItemModel } from "../../models/CartItemModel";
 
-const CartItems = () => {
+interface CartItemsProps {
+  items: CartItemModel[];
+}
+
+const CartItems: React.FC<CartItemsProps> = ({ items }) => {
   return (
     <div className="cart-items">
       <div className="cart-header d-none d-lg-block">
@@ -20,9 +25,11 @@ const CartItems = () => {
         </div>
       </div>
 
-      <CartItem />
-      <CartItem />
-      <CartItem />
+      {items.length === 0 ? (
+        <div className="alert alert-info mt-3">Giỏ hàng của bạn đang trống.</div>
+      ) : (
+        items.map((item) => <CartItem key={item.cartItemId} item={item} />)
+      )}
 
       <div className="cart-actions">
         <div className="row">

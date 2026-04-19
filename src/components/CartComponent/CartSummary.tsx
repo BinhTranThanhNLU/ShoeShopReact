@@ -1,11 +1,21 @@
-const CartSummary = () => {
+interface CartSummaryProps {
+  totalItems: number;
+  totalPrice: number;
+}
+
+const CartSummary: React.FC<CartSummaryProps> = ({ totalItems, totalPrice }) => {
   return (
     <div className="cart-summary">
       <h4 className="summary-title">Tóm tắt đơn hàng</h4>
 
       <div className="summary-item">
+        <span className="summary-label">Số lượng sản phẩm</span>
+        <span className="summary-value">{totalItems}</span>
+      </div>
+
+      <div className="summary-item">
         <span className="summary-label">Tổng phụ</span>
-        <span className="summary-value">1.000.000đ</span>
+        <span className="summary-value">{totalPrice.toLocaleString()}đ</span>
       </div>
 
       <div className="summary-item shipping-item">
@@ -50,17 +60,17 @@ const CartSummary = () => {
 
       <div className="summary-item">
         <span className="summary-label">Thuế</span>
-        <span className="summary-value">$27.00</span>
+        <span className="summary-value">0đ</span>
       </div>
 
       <div className="summary-item discount">
         <span className="summary-label">Giảm giá</span>
-        <span className="summary-value">-$0.00</span>
+        <span className="summary-value">0đ</span>
       </div>
 
       <div className="summary-total">
         <span className="summary-label">Tổng</span>
-        <span className="summary-value">$301.95</span>
+        <span className="summary-value">{totalPrice.toLocaleString()}đ</span>
       </div>
 
       <div className="checkout-button">
