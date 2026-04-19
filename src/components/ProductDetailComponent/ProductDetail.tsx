@@ -37,6 +37,8 @@ const ProductDetail: React.FC<{ product: ProductModel }> = ({ product }) => {
   const currentVariant = product.variants?.find(
     (v) => v.color === selectedColor && v.size === selectedSize,
   );
+  const hasDiscount = (product.discountPercent ?? 0) > 0 && !!product.discountedPrice;
+  const finalPrice = hasDiscount ? (product.discountedPrice as number) : product.price;
 
   return (
     <div className="col-lg-5" data-aos="fade-left" data-aos-delay="200">
@@ -60,15 +62,19 @@ const ProductDetail: React.FC<{ product: ProductModel }> = ({ product }) => {
         <div className="pricing-section">
           <div className="price-display">
             <span className="sale-price">
-              {product.price.toLocaleString()}đ
+              {finalPrice.toLocaleString()}đ
             </span>
-            <span className="regular-price">
-              {product.price.toLocaleString()}đ
-            </span>
+            {hasDiscount && (
+              <span className="regular-price">
+                {product.price.toLocaleString()}đ
+              </span>
+            )}
           </div>
-          <div className="savings-info">
-            <span className="discount-percent">{product.discountPercent}</span>
-          </div>
+          {hasDiscount && (
+            <div className="savings-info">
+              <span className="discount-percent">-{product.discountPercent}%</span>
+            </div>
+          )}
         </div>
 
         <div className="product-description">

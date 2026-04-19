@@ -5,8 +5,8 @@ export interface ProductModel {
     id:number;
     name:string;
     price:number;
-    discountPercent: number;
-    discountedPrice: number;
+    discountPercent: number | null;
+    discountedPrice: number | null;
     description: string,
     totalQuantity: number;
     brand: string | null,

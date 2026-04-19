@@ -51,7 +51,11 @@ const ListProductHome: React.FC<{ products: ProductModel[] }> = ({
 
       <div className="container" data-aos="fade-up" data-aos-delay="100">
         <div className="row g-5">
-          {products.slice(0, 8).map((product) => (
+          {products.slice(0, 8).map((product) => {
+            const hasDiscount = (product.discountPercent ?? 0) > 0 && !!product.discountedPrice;
+            const finalPrice = hasDiscount ? (product.discountedPrice as number) : product.price;
+
+            return (
             <div className="col-lg-3 col-md-6" key={product.id}>
               <div className="product-item">
                 <div className="product-image">
@@ -100,12 +104,19 @@ const ListProductHome: React.FC<{ products: ProductModel[] }> = ({
                     </div>
                   </div>
                   <div className="product-price">
-                    {product.price.toLocaleString()}đ
+                    <span className="current-price">{finalPrice.toLocaleString()}đ</span>
+                    {hasDiscount && (
+                      <>
+                        <span className="old-price">{product.price.toLocaleString()}đ</span>
+                        <span className="badge bg-danger ms-2">-{product.discountPercent}%</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="text-center mt-4">

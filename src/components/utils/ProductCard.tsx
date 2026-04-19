@@ -10,6 +10,8 @@ const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
 
   const mainImg = product.images?.[0]?.imageUrl || "/assets/img/no-image.png";
   const hoverImg = product.images?.[1]?.imageUrl || "/assets/img/no-image.png";
+  const hasDiscount = (product.discountPercent ?? 0) > 0 && !!product.discountedPrice;
+  const finalPrice = hasDiscount ? (product.discountedPrice as number) : product.price;
 
   const handleAddToCart = async () => {
     const token = localStorage.getItem("token");
@@ -83,7 +85,15 @@ const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
             <Link to={`/product-detail/${product.id}`}>{product.name}</Link>
           </h4>
           <div className="product-meta">
-            <div className="product-price">{product.price.toLocaleString()}đ</div>
+            <div className="product-price">
+              <span className="current-price">{finalPrice.toLocaleString()}đ</span>
+              {hasDiscount && (
+                <>
+                  <span className="old-price original-price">{product.price.toLocaleString()}đ</span>
+                  <span className="badge bg-danger ms-2">-{product.discountPercent}%</span>
+                </>
+              )}
+            </div>
             <div className="product-rating">
               <i className="bi bi-star-fill"></i>
               4.8 <span>(42)</span>
