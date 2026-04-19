@@ -25,11 +25,7 @@ const CartPage = () => {
 
       try {
         const data = await cartApi.getMyCart();
-
-        const uniqueProductIds = Array.from(
-          new Set((data.items || []).map((item) => item.productId)),
-        );
-
+        const uniqueProductIds = Array.from(new Set((data.items || []).map((item) => item.productId)));
         const imageMap = new Map<number, string>();
 
         await Promise.all(
@@ -55,6 +51,7 @@ const CartPage = () => {
           ...data,
           items: enrichedItems,
         });
+        setHttpError(null);
       } catch (error: any) {
         setHttpError(error?.response?.data?.message || "Không thể lấy dữ liệu giỏ hàng");
       } finally {
@@ -64,6 +61,65 @@ const CartPage = () => {
 
     fetchMyCart();
   }, []);
+
+  const refreshCart = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setCart(null);
+      return;
+    }
+
+    try {
+      const data = await cartApi.getMyCart();
+      const uniqueProductIds = Array.from(new Set((data.items || []).map((item) => item.productId)));
+      const imageMap = new Map<number, string>();
+
+      await Promise.all(
+        uniqueProductIds.map(async (productId) => {
+          try {
+            const product = await productApi.getProductById(productId);
+            const firstImage = product.images?.[0]?.imageUrl;
+            if (firstImage) {
+              imageMap.set(productId, firstImage);
+            }
+          } catch (imageError) {
+            console.error("Không thể tải ảnh sản phẩm:", imageError);
+          }
+        }),
+      );
+
+      const enrichedItems = (data.items || []).map((item) => ({
+        ...item,
+        imageUrl: imageMap.get(item.productId) || "/img/product/product-1.webp",
+      }));
+
+      setCart({
+        ...data,
+        items: enrichedItems,
+      });
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (error: any) {
+      setHttpError(error?.response?.data?.message || "Không thể lấy dữ liệu giỏ hàng");
+    }
+  };
+
+  const handleRemoveItem = async (cartItemId: number) => {
+    try {
+      await cartApi.removeCartItem(cartItemId);
+      await refreshCart();
+    } catch (error: any) {
+      console.error(error?.response?.data?.message || "Không thể xóa sản phẩm khỏi giỏ hàng");
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      await cartApi.clearMyCart();
+      await refreshCart();
+    } catch (error: any) {
+      console.error(error?.response?.data?.message || "Không thể xóa giỏ hàng");
+    }
+  };
 
   if (isLoading) return <SpinningLoading />;
   if (httpError) return <ErrorMessage message={httpError} />;
@@ -87,7 +143,11 @@ const CartPage = () => {
           ) : (
           <div className="row">
             <div className="col-lg-8" data-aos="fade-up" data-aos-delay="200">
-              <CartItems items={cart?.items || []} />
+              <CartItems
+                items={cart?.items || []}
+                onRemoveItem={handleRemoveItem}
+                onClearCart={handleClearCart}
+              />
             </div>
 
             <div

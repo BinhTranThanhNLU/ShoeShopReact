@@ -3,9 +3,11 @@ import type { CartItemModel } from "../../models/CartItemModel";
 
 interface CartItemsProps {
   items: CartItemModel[];
+  onRemoveItem: (cartItemId: number) => Promise<void>;
+  onClearCart: () => Promise<void>;
 }
 
-const CartItems: React.FC<CartItemsProps> = ({ items }) => {
+const CartItems: React.FC<CartItemsProps> = ({ items, onRemoveItem, onClearCart }) => {
   return (
     <div className="cart-items">
       <div className="cart-header d-none d-lg-block">
@@ -28,7 +30,9 @@ const CartItems: React.FC<CartItemsProps> = ({ items }) => {
       {items.length === 0 ? (
         <div className="alert alert-info mt-3">Giỏ hàng của bạn đang trống.</div>
       ) : (
-        items.map((item) => <CartItem key={item.cartItemId} item={item} />)
+        items.map((item) => (
+          <CartItem key={item.cartItemId} item={item} onRemoveItem={onRemoveItem} />
+        ))
       )}
 
       <div className="cart-actions">
@@ -48,7 +52,7 @@ const CartItems: React.FC<CartItemsProps> = ({ items }) => {
             </div>
           </div>
           <div className="col-lg-6 text-md-end">
-            <button className="btn btn-outline-remove">
+            <button className="btn btn-outline-remove" type="button" onClick={onClearCart}>
               <i className="bi bi-trash"></i> Xóa cart
             </button>
           </div>

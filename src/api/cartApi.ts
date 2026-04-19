@@ -12,4 +12,14 @@ export const cartApi = {
     const response = await axiosClient.get("/cart");
     return response.data;
   },
+
+  clearMyCart: async (): Promise<CartModel> => {
+    const response = await axiosClient.delete("/cart");
+    return response.data;
+  },
+
+  removeCartItem: async (cartItemId: number): Promise<CartModel> => {
+    const response = await axiosClient.delete(`/cart/items/${cartItemId}`);
+    return response.data;
+  },
 };

@@ -2,9 +2,10 @@ import type { CartItemModel } from "../../models/CartItemModel";
 
 interface CartItemProps {
   item: CartItemModel;
+  onRemoveItem: (cartItemId: number) => Promise<void>;
 }
 
-const CartItem: React.FC<CartItemProps> = ({ item }) => {
+const CartItem: React.FC<CartItemProps> = ({ item, onRemoveItem }) => {
   return (
     <div className="cart-item">
       <div className="row align-items-center">
@@ -24,7 +25,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
                 <span className="product-color">Màu: {item.color}</span>
                 <span className="product-size">Kích thước: {item.size}</span>
               </div>
-              <button className="remove-item" type="button">
+              <button className="remove-item" type="button" onClick={() => onRemoveItem(item.cartItemId)}>
                 <i className="bi bi-trash"></i> Xóa
               </button>
             </div>
