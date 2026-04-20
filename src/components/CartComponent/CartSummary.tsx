@@ -1,9 +1,29 @@
+import type { ShippingMethodModel } from "../../models/ShippingMethodModel";
+
 interface CartSummaryProps {
   totalItems: number;
   totalPrice: number;
+  shippingCost: number;
+  shippingMethodId: number;
+  shippingMethods: ShippingMethodModel[];
+  onUpdateShippingMethod: (shippingMethodId: number) => Promise<void>;
 }
 
-const CartSummary: React.FC<CartSummaryProps> = ({ totalItems, totalPrice }) => {
+const CartSummary: React.FC<CartSummaryProps> = ({
+  totalItems,
+  totalPrice,
+  shippingCost,
+  shippingMethodId,
+  shippingMethods,
+  onUpdateShippingMethod,
+}) => {
+  const finalTotal = totalPrice + shippingCost;
+
+  const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const methodId = parseInt(e.target.value);
+    onUpdateShippingMethod(methodId);
+  };
+
   return (
     <div className="cart-summary">
       <h4 className="summary-title">Tóm tắt đơn hàng</h4>
@@ -21,40 +41,26 @@ const CartSummary: React.FC<CartSummaryProps> = ({ totalItems, totalPrice }) => 
       <div className="summary-item shipping-item">
         <span className="summary-label">Vận chuyển</span>
         <div className="shipping-options">
-          <div className="form-check text-end">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="shipping"
-              id="standard"
-              checked={true}
-            />
-            <label className="form-check-label" htmlFor="standard">
-              Giao hàng tiêu chuẩn - 100.000đ
-            </label>
-          </div>
-          <div className="form-check text-end">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="shipping"
-              id="express"
-            />
-            <label className="form-check-label" htmlFor="express">
-              Giao hàng nhanh - 200.000đ
-            </label>
-          </div>
-          <div className="form-check text-end">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="shipping"
-              id="free"
-            />
-            <label className="form-check-label" htmlFor="free">
-              Miễn phí vận chuyển (Đơn hàng trên 1.000.000đ)
-            </label>
-          </div>
+          {shippingMethods.length > 0 ? (
+            shippingMethods.map((method) => (
+              <div key={method.id} className="form-check text-end">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="shipping"
+                  id={`shipping-${method.id}`}
+                  value={method.id}
+                  checked={shippingMethodId === method.id}
+                  onChange={handleShippingChange}
+                />
+                <label className="form-check-label" htmlFor={`shipping-${method.id}`}>
+                  {method.name} - {method.cost.toLocaleString()}đ
+                </label>
+              </div>
+            ))
+          ) : (
+            <div className="text-muted">Đang tải phương thức vận chuyển...</div>
+          )}
         </div>
       </div>
 
@@ -70,7 +76,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ totalItems, totalPrice }) => 
 
       <div className="summary-total">
         <span className="summary-label">Tổng</span>
-        <span className="summary-value">{totalPrice.toLocaleString()}đ</span>
+        <span className="summary-value">{finalTotal.toLocaleString()}đ</span>
       </div>
 
       <div className="checkout-button">

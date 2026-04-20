@@ -1,13 +1,15 @@
 import CartItem from "./CartItem";
 import type { CartItemModel } from "../../models/CartItemModel";
+import type { UpdateCartItemRequest } from "../../modelRequest/UpdateCartItemRequest";
 
 interface CartItemsProps {
   items: CartItemModel[];
   onRemoveItem: (cartItemId: number) => Promise<void>;
   onClearCart: () => Promise<void>;
+  onUpdateItem: (cartItemId: number, data: UpdateCartItemRequest) => Promise<boolean>;
 }
 
-const CartItems: React.FC<CartItemsProps> = ({ items, onRemoveItem, onClearCart }) => {
+const CartItems: React.FC<CartItemsProps> = ({ items, onRemoveItem, onClearCart, onUpdateItem }) => {
   return (
     <div className="cart-items">
       <div className="cart-header d-none d-lg-block">
@@ -31,7 +33,12 @@ const CartItems: React.FC<CartItemsProps> = ({ items, onRemoveItem, onClearCart 
         <div className="alert alert-info mt-3">Giỏ hàng của bạn đang trống.</div>
       ) : (
         items.map((item) => (
-          <CartItem key={item.cartItemId} item={item} onRemoveItem={onRemoveItem} />
+          <CartItem
+            key={item.cartItemId}
+            item={item}
+            onRemoveItem={onRemoveItem}
+            onUpdateItem={onUpdateItem}
+          />
         ))
       )}
 

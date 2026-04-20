@@ -1,4 +1,5 @@
 import type { CartItemModel } from "./CartItemModel";
+import type { ShippingMethodModel } from "./ShippingMethodModel";
 
 export interface CartModel {
   cartId: number;
@@ -6,4 +7,7 @@ export interface CartModel {
   totalItems: number;
   totalPrice: number;
   items: CartItemModel[];
+  shippingMethodId?: number;
+  shippingCost?: number;
+  shippingMethod?: ShippingMethodModel;
 }
