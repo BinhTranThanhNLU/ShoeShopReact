@@ -1,48 +1,104 @@
+import { useEffect, useState } from "react";
+import type { CartModel } from "../../models/CartModel";
+import { cartApi } from "../../api/cartApi";
+
 const OrderSummary = () => {
+  const [cart, setCart] = useState<CartModel | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [promoCode, setPromoCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        const cartData = await cartApi.getMyCart();
+        setCart(cartData);
+      } catch (error) {
+        console.error("Failed to load cart:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCart();
+  }, []);
+
+  const handleApplyPromo = () => {
+    // TODO: Implement promo code validation with backend
+    // For now, just add a demo discount
+    if (promoCode === "SAVE10") {
+      setDiscount(0.1);
+    } else if (promoCode === "SAVE20") {
+      setDiscount(0.2);
+    } else {
+      alert("Mã giảm giá không hợp lệ");
+      setDiscount(0);
+      setPromoCode("");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="order-summary" data-aos="fade-left" data-aos-delay="200">
+        <div className="order-summary-header">
+          <h3>Tóm tắt đơn hàng</h3>
+        </div>
+        <div className="alert alert-info">Đang tải giỏ hàng...</div>
+      </div>
+    );
+  }
+
+  if (!cart || cart.items.length === 0) {
+    return (
+      <div className="order-summary" data-aos="fade-left" data-aos-delay="200">
+        <div className="order-summary-header">
+          <h3>Tóm tắt đơn hàng</h3>
+        </div>
+        <div className="alert alert-warning">Giỏ hàng của bạn trống</div>
+      </div>
+    );
+  }
+
+  const subtotal = cart.totalPrice;
+  const shippingFee = cart.shippingCost || 0;
+  const discountAmount = subtotal * discount;
+  const tax = (subtotal - discountAmount) * 0.1; // 10% tax
+  const total = subtotal - discountAmount + shippingFee + tax;
+
   return (
     <div className="order-summary" data-aos="fade-left" data-aos-delay="200">
       <div className="order-summary-header">
         <h3>Tóm tắt đơn hàng</h3>
-        <span className="item-count">2 sản phẩm</span>
+        <span className="item-count">{cart.items.length} sản phẩm</span>
       </div>
 
       <div className="order-summary-content">
         <div className="order-items">
-          <div className="order-item">
-            <div className="order-item-image">
-              <img
-                src="img/product/product-1.webp"
-                alt="Sản phẩm"
-                className="img-fluid"
-              />
-            </div>
-            <div className="order-item-details">
-              <h4>Lorem Ipsum Dolor</h4>
-              <p className="order-item-variant">Màu: Đen | Size: M</p>
-              <div className="order-item-price">
-                <span className="quantity">1 ×</span>
-                <span className="price">89.99₫</span>
+          {cart.items.map((item) => (
+            <div className="order-item" key={item.cartItemId}>
+              <div className="order-item-image">
+                <img
+                  src={
+                    item.imageUrl
+                      ? `http://localhost:8080${item.imageUrl}`
+                      : "img/product/product-1.webp"
+                  }
+                  alt={item.productName || "Sản phẩm"}
+                  className="img-fluid"
+                />
+              </div>
+              <div className="order-item-details">
+                <h4>{item.productName || "Sản phẩm"}</h4>
+                <p className="order-item-variant">
+                  Màu: {item.color} | Size: {item.size}
+                </p>
+                <div className="order-item-price">
+                  <span className="quantity">{item.quantity} ×</span>
+                  <span className="price">{item.unitPrice.toLocaleString("vi-VN")}₫</span>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="order-item">
-            <div className="order-item-image">
-              <img
-                src="img/product/product-1.webp"
-                alt="Sản phẩm"
-                className="img-fluid"
-              />
-            </div>
-            <div className="order-item-details">
-              <h4>Sit Amet Consectetur</h4>
-              <p className="order-item-variant">Màu: Trắng | Size: L</p>
-              <div className="order-item-price">
-                <span className="quantity">2 ×</span>
-                <span className="price">59.99₫</span>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
         <div className="promo-code">
@@ -51,9 +107,15 @@ const OrderSummary = () => {
               type="text"
               className="form-control"
               placeholder="Mã giảm giá"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
               aria-label="Mã giảm giá"
             />
-            <button className="btn btn-outline-primary" type="button">
+            <button
+              className="btn btn-outline-primary"
+              type="button"
+              onClick={handleApplyPromo}
+            >
               Áp dụng
             </button>
           </div>
@@ -62,19 +124,29 @@ const OrderSummary = () => {
         <div className="order-totals">
           <div className="order-subtotal d-flex justify-content-between">
             <span>Tạm tính</span>
-            <span>209.97₫</span>
+            <span>{subtotal.toLocaleString("vi-VN")}₫</span>
           </div>
-          <div className="order-shipping d-flex justify-content-between">
-            <span>Phí vận chuyển</span>
-            <span>9.99₫</span>
-          </div>
+
+          {discount > 0 && (
+            <div className="order-discount d-flex justify-content-between text-success">
+              <span>Giảm giá ({(discount * 100).toFixed(0)}%)</span>
+              <span>-{discountAmount.toLocaleString("vi-VN")}₫</span>
+            </div>
+          )}
+
           <div className="order-tax d-flex justify-content-between">
             <span>Thuế</span>
-            <span>21.00₫</span>
+            <span>{tax.toLocaleString("vi-VN")}₫</span>
           </div>
+
+          <div className="order-shipping d-flex justify-content-between">
+            <span>Phí vận chuyển</span>
+            <span>{shippingFee.toLocaleString("vi-VN")}₫</span>
+          </div>
+
           <div className="order-total d-flex justify-content-between">
             <span>Tổng cộng</span>
-            <span>240.96₫</span>
+            <span className="text-primary fw-bold">{total.toLocaleString("vi-VN")}₫</span>
           </div>
         </div>
 

@@ -19,11 +19,12 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import AccountPage from "./pages/AccountPage.tsx";
-import WishlistTab from "./components/AccountComponent/WishlistTab.tsx";
 import CartPage from "./pages/CartPage.tsx";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage.tsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 import { GoogleCallback } from "./components/LoginComponent/GoogleCallback.tsx";
+import CheckoutPage from "./pages/CheckoutPage.tsx";
+import CheckoutSuccess from "./components/CheckoutComponent/CheckoutSuccess.tsx";
 
 function App() {
   useEffect(() => {
@@ -50,6 +51,9 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/cart" element={<CartPage />} />
+
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout/success/:orderId" element={<CheckoutSuccess />} />
       </Routes>
       <Footer />
     </BrowserRouter>
