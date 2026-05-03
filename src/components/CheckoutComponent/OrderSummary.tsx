@@ -62,8 +62,8 @@ const OrderSummary = () => {
   const subtotal = cart.totalPrice;
   const shippingFee = cart.shippingCost || 0;
   const discountAmount = subtotal * discount;
-  const tax = (subtotal - discountAmount) * 0.1; // 10% tax
-  const total = subtotal - discountAmount + shippingFee + tax;
+
+  const total = subtotal - discountAmount + shippingFee ;
 
   return (
     <div className="order-summary" data-aos="fade-left" data-aos-delay="200">
@@ -134,10 +134,10 @@ const OrderSummary = () => {
             </div>
           )}
 
-          <div className="order-tax d-flex justify-content-between">
-            <span>Thuế</span>
-            <span>{tax.toLocaleString("vi-VN")}₫</span>
-          </div>
+          {/*<div className="order-tax d-flex justify-content-between">*/}
+          {/*  <span>Thuế</span>*/}
+          {/*  <span>{subtotal.toLocaleString("vi-VN")}₫</span>*/}
+          {/*</div>*/}
 
           <div className="order-shipping d-flex justify-content-between">
             <span>Phí vận chuyển</span>
