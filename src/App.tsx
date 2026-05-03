@@ -25,6 +25,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 import { GoogleCallback } from "./components/LoginComponent/GoogleCallback.tsx";
 import CheckoutPage from "./pages/CheckoutPage.tsx";
 import CheckoutSuccess from "./components/CheckoutComponent/CheckoutSuccess.tsx";
+import PaymentCallback from "./pages/PaymentCallback.tsx";
 
 function App() {
   useEffect(() => {
@@ -37,26 +38,27 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/category/:id" element={<CategoryPage />} />
-        <Route path="/product-detail/:id" element={<ProductDetailPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/auth/google/callback" element={<GoogleCallback />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/account" element={<AccountPage />} />
-        <Route path="/cart" element={<CartPage />} />
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/product-detail/:id" element={<ProductDetailPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/checkout/success/:orderId" element={<CheckoutSuccess />} />
+          <Route path="/orders/payment-callback" element={<PaymentCallback />}/>
 
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/checkout/success/:orderId" element={<CheckoutSuccess />} />
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+        </Routes>
+        <Footer />
+      </BrowserRouter>
   );
 }
 
