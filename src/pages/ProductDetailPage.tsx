@@ -54,7 +54,7 @@ const ProductDetailPage = () => {
           </div>
 
           <div className="row mt-5" data-aos="fade-up" data-aos-delay="300">
-            <ProductTab />
+            <ProductTab product={product} />
           </div>
         </div>
       </section>

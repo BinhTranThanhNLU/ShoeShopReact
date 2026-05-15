@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import type {OrderDetailProps} from "../../types/AccountProps";
 
 export const OrderDetail: React.FC<OrderDetailProps> = ({ order }) => {
@@ -23,8 +22,8 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order }) => {
         <div className="detail-section">
           <h5>Sản phẩm ({order.items.length})</h5>
           <div className="order-items">
-            {order.items.map((item: { image: string | undefined; name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; idVariant: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; quantity: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; price: { toLocaleString: (arg0: string) => string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }; }) => (
-              <div className="item">
+            {order.items.map((item) => (
+              <div className="item" key={item.id}>
                 <img src={item.image} alt={item.name} loading="lazy" />
                 <div className="item-info">
                   <h6>{item.name}</h6>
@@ -73,7 +72,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order }) => {
               <br />
               {order.ward}
               <br />
-              {order.ward}
+              {order.district}
               <br />
               {order.province}
             </p>

@@ -7,5 +7,6 @@ export interface AddressModel {
     district: string;
     province: string;
     idUser: number;
-    default: boolean; // Đổi từ isDefault thành default để khớp JSON
+    default?: boolean;
+    isDefault?: boolean;
 }

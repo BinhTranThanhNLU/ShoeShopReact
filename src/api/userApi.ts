@@ -1,13 +1,20 @@
-import axios from 'axios';
+import type { ChangePasswordRequest } from "../modelRequest/ChangePasswordRequest.ts";
+import type { UpdaterUserRequest } from "../modelRequest/UpdateUserRequest";
+import type { UserModel } from "../models/UserModel";
+import axiosClient from "./axiosClient";
 
-const API_URL = 'http://localhost:8080/api/users';
+export const userApi = {
+    getMe: async (): Promise<UserModel> => {
+        const response = await axiosClient.get("/users/me");
+        return response.data;
+    },
 
-export const getMe = async () => {
-    const token = localStorage.getItem('token'); // Lấy token đã lưu khi đăng nhập
-    const response = await axios.get(API_URL, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-    return response.data;
+    updateMyProfile: async (data: UpdaterUserRequest): Promise<UserModel> => {
+        const response = await axiosClient.patch("/users/me", data);
+        return response.data;
+    },
+
+    changePassword: async (data: ChangePasswordRequest): Promise<void> => {
+        await axiosClient.patch("/users/me/password", data);
+    },
 };

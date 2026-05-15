@@ -1,7 +1,12 @@
 import OverviewTab from "./OverviewTab";
 import ReviewsTab from "./ReviewsTab";
+import type { ProductModel } from "../../models/ProductModel";
 
-const ProductTab = () => {
+type ProductTabProps = {
+  product: ProductModel;
+};
+
+const ProductTab: React.FC<ProductTabProps> = ({ product }) => {
     return (
  <div className="col-12">
               <div className="info-tabs-container">
@@ -20,13 +25,13 @@ const ProductTab = () => {
                     data-bs-target="#ecommerce-product-details-5-customer-reviews"
                     type="button"
                   >
-                    Đánh giá (127)
+                    Đánh giá
                   </button>
                 </nav>
 
                 <div className="tab-content">
                   <OverviewTab />
-                  <ReviewsTab />
+                  <ReviewsTab productId={product.id} />
                 </div>
               </div>
             </div>

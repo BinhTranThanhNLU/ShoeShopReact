@@ -1,43 +1,32 @@
-// src/api/addressApi.ts
-import axios from 'axios';
-import type {AddressModel} from '../models/AddressModel';
-
-const API_BASE_URL = 'http://localhost:8080/api/addresses'; // Thay đổi theo config của bạn
+import type { CreateAddressRequest } from "../modelRequest/CreateAddressRequest";
+import type { UpdateAddressRequest } from "../modelRequest/UpdateAddressRequest";
+import type { AddressModel } from "../models/AddressModel";
+import axiosClient from "./axiosClient";
 
 const addressApi = {
-    // Lấy tất cả địa chỉ của một User cụ thể
-    getByUserId: async (userId: number): Promise<AddressModel[]> => {
-        const response = await axios.get<AddressModel[]>(`${API_BASE_URL}/user/${userId}`);
+    getMyAddresses: async (): Promise<AddressModel[]> => {
+        const response = await axiosClient.get("/addresses/me");
         return response.data;
     },
 
-    // Lấy chi tiết một địa chỉ
-    getById: async (id: number): Promise<AddressModel> => {
-        const response = await axios.get<AddressModel>(`${API_BASE_URL}/${id}`);
+    create: async (data: CreateAddressRequest): Promise<AddressModel> => {
+        const response = await axiosClient.post("/addresses", data);
         return response.data;
     },
 
-    // Tạo địa chỉ mới
-    create: async (address: AddressModel): Promise<AddressModel> => {
-        const response = await axios.post<AddressModel>(API_BASE_URL, address);
+    update: async (id: number, data: UpdateAddressRequest): Promise<AddressModel> => {
+        const response = await axiosClient.patch(`/addresses/${id}`, data);
         return response.data;
     },
 
-    // Cập nhật địa chỉ
-    update: async (id: number, address: AddressModel): Promise<AddressModel> => {
-        const response = await axios.put<AddressModel>(`${API_BASE_URL}/${id}`, address);
-        return response.data;
-    },
-
-    // Xóa địa chỉ
     delete: async (id: number): Promise<void> => {
-        await axios.delete(`${API_BASE_URL}/${id}`);
+        await axiosClient.delete(`/addresses/${id}`);
     },
 
-    // Đặt làm địa chỉ mặc định (Giả định bạn có endpoint này ở Backend)
-    setDefault: async (userId: number, addressId: number): Promise<void> => {
-        await axios.patch(`${API_BASE_URL}/user/${userId}/default/${addressId}`);
-    }
+    setDefault: async (id: number): Promise<AddressModel> => {
+        const response = await axiosClient.patch(`/addresses/${id}/default`);
+        return response.data;
+    },
 };
 
 export default addressApi;

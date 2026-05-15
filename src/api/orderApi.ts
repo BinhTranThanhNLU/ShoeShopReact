@@ -11,7 +11,7 @@ export const orderApi = {
 
   // Get user's orders
   getUserOrders: async (): Promise<OrderModel[]> => {
-    const response = await axiosClient.get("/orders/my");
+    const response = await axiosClient.get("/orders/me");
     return response.data;
   },
 

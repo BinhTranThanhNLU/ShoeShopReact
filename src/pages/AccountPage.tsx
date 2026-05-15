@@ -1,10 +1,8 @@
 import AddressTab from "../components/AccountComponent/AddressTab";
 import OrderTab from "../components/AccountComponent/OrderTab";
-import PaymentMethodTab from "../components/AccountComponent/PaymentMethodTab";
 import ProfileMenu from "../components/AccountComponent/ProfileMenu";
 import ReviewTab from "../components/AccountComponent/ReviewTab";
 import SettingTab from "../components/AccountComponent/SettingTab";
-import WishlistTab from "../components/AccountComponent/WishlistTab";
 import { PageTitle } from "../components/utils/PageTitle";
 
 const AccountPage = () => {
@@ -44,8 +42,6 @@ const AccountPage = () => {
               <div className="content-area">
                 <div className="tab-content">
                   <OrderTab />
-                  <WishlistTab />
-                  <PaymentMethodTab />
                   <ReviewTab />
                   <AddressTab />
                   <SettingTab />

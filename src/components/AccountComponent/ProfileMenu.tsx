@@ -1,21 +1,16 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { userApi } from '../../api/userApi';
+import type { UserModel } from '../../models/UserModel';
 
 const ProfileMenu = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserModel | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        // Gọi đến endpoint getUserById trong UserController
-        const response = await axios.get('http://localhost:8080/api/users', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setUser(response.data);
+        const response = await userApi.getMe();
+        setUser(response);
       } catch (error) {
         console.error("Lỗi khi lấy thông tin người dùng:", error);
       } finally {
@@ -56,7 +51,7 @@ const ProfileMenu = () => {
           <h4>{user?.fullName || 'Người dùng'}</h4>
           <div className="user-status">
             <i className="bi bi-award"></i>
-            <span>{user?.roleName || 'Thành viên'}</span>
+            <span>{user?.role?.name || user?.roleName || 'Thành viên'}</span>
           </div>
         </div>
 
@@ -70,19 +65,8 @@ const ProfileMenu = () => {
                 <span className="badge">3</span>
               </a>
             </li>
-            <li className="nav-item">
-              <a className="nav-link" data-bs-toggle="tab" href="#wishlist">
-                <i className="bi bi-heart"></i>
-                <span>Danh sách mong muốn</span>
-                <span className="badge">12</span>
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" data-bs-toggle="tab" href="#wallet">
-                <i className="bi bi-wallet2"></i>
-                <span>Phương thức thanh toán</span>
-              </a>
-            </li>
+           
+         
             <li className="nav-item">
               <a className="nav-link" data-bs-toggle="tab" href="#reviews">
                 <i className="bi bi-star"></i>

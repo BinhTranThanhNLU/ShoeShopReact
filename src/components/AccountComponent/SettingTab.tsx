@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { userApi } from '../../api/userApi';
 
 const SettingTab = () => {
   // Quản lý trạng thái thông tin cá nhân
@@ -16,20 +16,20 @@ const SettingTab = () => {
     confirmPassword: ''
   });
 
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
   // 1. Lấy thông tin người dùng hiện tại khi component mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8080/api/users', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await userApi.getMe();
 
         // Cập nhật state với dữ liệu từ Backend UserDTO
         setFormData({
-          fullName: response.data.fullName || '',
-          email: response.data.email || '',
-          phone: response.data.phone || ''
+          fullName: response.fullName || '',
+          email: response.email || '',
+          phone: response.phone || ''
         });
       } catch (error) {
         console.error("Lỗi khi tải thông tin người dùng:", error);
@@ -38,22 +38,24 @@ const SettingTab = () => {
     fetchUserData();
   }, []);
 
-  // 2. Xử lý cập nhật thông tin cá nhân (PatchMapping /api/users)
+  // 2. Xử lý cập nhật thông tin cá nhân (PatchMapping /api/users/me)
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSavingProfile(true);
+
     try {
-      const token = localStorage.getItem('token');
-      // Gửi request tới UserController.updateUser
-      await axios.patch('http://localhost:8080/api/users', {
+      await userApi.updateMyProfile({
         fullName: formData.fullName,
+        email: formData.email,
         phone: formData.phone
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
+
       alert("Thay đổi của bạn đã được lưu thành công!");
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
       alert("Không thể lưu thay đổi. Vui lòng thử lại.");
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -65,17 +67,20 @@ const SettingTab = () => {
       return;
     }
 
+    setIsSavingPassword(true);
+
     try {
-      const token = localStorage.getItem('token');
-      // Bạn có thể sử dụng endpoint /api/auth/reset-password hoặc tạo một endpoint đổi mật khẩu riêng
-      await axios.post('http://localhost:8080/api/auth/reset-password', {
-        token: token, // Hoặc logic reset password của bạn
-        newPassword: passwordData.newPassword
+      await userApi.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
       });
+
       alert("Mật khẩu của bạn đã được cập nhật thành công!");
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       alert("Cập nhật mật khẩu thất bại.");
+    } finally {
+      setIsSavingPassword(false);
     }
   };
 
@@ -125,7 +130,9 @@ const SettingTab = () => {
               </div>
 
               <div className="form-buttons">
-                <button type="submit" className="btn-save">Lưu thay đổi</button>
+                <button type="submit" className="btn-save" disabled={isSavingProfile}>
+                  {isSavingProfile ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </button>
               </div>
             </form>
           </div>
@@ -171,7 +178,9 @@ const SettingTab = () => {
               </div>
 
               <div className="form-buttons">
-                <button type="submit" className="btn-save">Cập nhật mật khẩu</button>
+                <button type="submit" className="btn-save" disabled={isSavingPassword}>
+                  {isSavingPassword ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+                </button>
               </div>
             </form>
           </div>

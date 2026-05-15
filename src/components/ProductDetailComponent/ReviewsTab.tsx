@@ -1,65 +1,97 @@
-const ReviewsTab = () => {
-  const ratingData = [
-    { star: 5, count: 86, percent: "68%" },
-    { star: 4, count: 28, percent: "22%" },
-    { star: 3, count: 8, percent: "10%" },
-    { star: 2, count: 4, percent: "5%" },
-    { star: 1, count: 1, percent: "2%" },
-  ];
+import { useEffect, useMemo, useState } from "react";
+import { reviewApi } from "../../api/reviewApi";
+import type { ReviewModel } from "../../models/ReviewModel";
 
-  const reviews = [
-    {
-      id: 1,
-      name: "Sarah Martinez",
-      img: "img/person/person-f-3.webp",
-      stars: 5,
-      date: "28 Tháng 3, 2024",
-      headline: "Chất lượng tuyệt vời và rất thoải mái",
-      text: "Sản phẩm có thiết kế đẹp, chất liệu tốt và đi rất êm chân. Tôi rất hài lòng với trải nghiệm này.",
-      useful: 12,
-    },
-    {
-      id: 2,
-      name: "David Chen",
-      img: "img/person/person-m-5.webp",
-      stars: 4,
-      date: "15 Tháng 3, 2024",
-      headline: "Giá tốt, chất lượng ổn",
-      text: "Giày đẹp và chất lượng tốt so với giá. Tuy nhiên, lúc đầu hơi cứng, cần vài ngày để làm mềm.",
-      useful: 8,
-    },
-  ];
+type ReviewsTabProps = {
+  productId: number;
+};
+
+const formatDate = (value: string) => {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+const renderStars = (rating: number) => {
+  return Array.from({ length: 5 }, (_, index) => (
+    <i key={index} className={`bi ${index < rating ? "bi-star-fill" : "bi-star"}`}></i>
+  ));
+};
+
+const ReviewsTab: React.FC<ReviewsTabProps> = ({ productId }) => {
+  const [reviews, setReviews] = useState<ReviewModel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const summary = useMemo(() => {
+    if (reviews.length === 0) {
+      return {
+        average: 0,
+        total: 0,
+        distribution: [5, 4, 3, 2, 1].map((star) => ({ star, count: 0, percent: "0%" })),
+      };
+    }
+
+    const total = reviews.length;
+    const average = reviews.reduce((sum, review) => sum + review.rating, 0) / total;
+
+    const distribution = [5, 4, 3, 2, 1].map((star) => {
+      const count = reviews.filter((review) => review.rating === star).length;
+      return {
+        star,
+        count,
+        percent: `${Math.round((count / total) * 100)}%`,
+      };
+    });
+
+    return { average, total, distribution };
+  }, [reviews]);
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await reviewApi.getReviewsForProduct(productId);
+        setReviews(data);
+      } catch (err) {
+        console.error("Khong the tai danh gia san pham:", err);
+        setError("Khong the tai danh gia san pham. Vui long thu lai.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadReviews();
+  }, [productId]);
 
   return (
-    <div
-      className="tab-pane fade"
-      id="ecommerce-product-details-5-customer-reviews"
-    >
+    <div className="tab-pane fade show active" id="ecommerce-product-details-5-customer-reviews">
       <div className="reviews-content">
         <div className="reviews-header">
           <div className="rating-overview">
             <div className="average-score">
-              <div className="score-display">4.6</div>
+              <div className="score-display">{summary.average ? summary.average.toFixed(1) : "0.0"}</div>
               <div className="score-stars">
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-half"></i>
+                {renderStars(Math.round(summary.average))}
               </div>
-              <div className="total-reviews">127 đánh giá của khách hàng</div>
+              <div className="total-reviews">{summary.total} đánh giá của khách hàng</div>
             </div>
 
             <div className="rating-distribution">
-              {/* Vòng lặp cho phần thanh tiến trình */}
-              {ratingData.map((item) => (
+              {summary.distribution.map((item) => (
                 <div className="rating-row" key={item.star}>
                   <span className="stars-label">{item.star}★</span>
                   <div className="progress-container">
-                    <div
-                      className="progress-fill"
-                      style={{ width: item.percent }}
-                    ></div>
+                    <div className="progress-fill" style={{ width: item.percent }}></div>
                   </div>
                   <span className="count-label">{item.count}</span>
                 </div>
@@ -68,54 +100,45 @@ const ReviewsTab = () => {
           </div>
 
           <div className="write-review-cta">
-            <h4>Chia sẻ trải nghiệm của bạn</h4>
-            <p>Giúp những người khác đưa ra quyết định đúng đắn</p>
-            <button className="btn review-btn">Viết đánh giá</button>
+            <h4>Đã có đánh giá từ người mua</h4>
+            <p>Những phản hồi thực tế từ khách hàng đã mua sản phẩm này</p>
+            <div className="btn review-btn">Đánh giá hiện có</div>
           </div>
         </div>
 
-        <div className="customer-reviews-list">
-          {/* Vòng lặp cho danh sách đánh giá */}
-          {reviews.map((rev) => (
-            <div className="review-card" key={rev.id}>
-              <div className="reviewer-profile">
-                <img src={rev.img} alt="Khách hàng" className="profile-pic" />
-                <div className="profile-details">
-                  <div className="customer-name">{rev.name}</div>
-                  <div className="review-meta">
-                    <div className="review-stars">
-                      {/* Loop hiển thị sao dựa trên số stars */}
-                      {[...Array(5)].map((_, i) => (
-                        <i
-                          key={i}
-                          className={`bi ${i < rev.stars ? "bi-star-fill" : "bi-star"}`}
-                        ></i>
-                      ))}
+        {loading && <div className="text-center p-5">Đang tải đánh giá...</div>}
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        {!loading && !error && (
+          <div className="customer-reviews-list">
+            {reviews.length === 0 ? (
+              <div className="text-center p-5">
+                <p className="text-muted">Sản phẩm này chưa có đánh giá nào.</p>
+              </div>
+            ) : (
+              reviews.map((review) => (
+                <div className="review-card" key={review.id}>
+                  <div className="reviewer-profile">
+                    <div className="profile-pic d-flex align-items-center justify-content-center bg-light rounded-circle">
+                      <i className="bi bi-person"></i>
                     </div>
-                    <span className="review-date">{rev.date}</span>
+                    <div className="profile-details">
+                      <div className="customer-name">{review.userName}</div>
+                      <div className="review-meta">
+                        <div className="review-stars">{renderStars(review.rating)}</div>
+                        <span className="review-date">{formatDate(review.createdAt)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <h5 className="review-headline">Đánh giá {review.rating}/5 sao</h5>
+                  <div className="review-text">
+                    <p>{review.comment || "Không có nội dung bình luận."}</p>
                   </div>
                 </div>
-              </div>
-              <h5 className="review-headline">{rev.headline}</h5>
-              <div className="review-text">
-                <p>{rev.text}</p>
-              </div>
-              <div className="review-actions">
-                <button className="action-btn">
-                  <i className="bi bi-hand-thumbs-up"></i> Hữu ích ({rev.useful}
-                  )
-                </button>
-                <button className="action-btn">
-                  <i className="bi bi-chat-dots"></i> Trả lời
-                </button>
-              </div>
-            </div>
-          ))}
-
-          <div className="load-more-section">
-            <button className="btn load-more-reviews">Xem thêm đánh giá</button>
+              ))
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
