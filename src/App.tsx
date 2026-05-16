@@ -9,11 +9,13 @@ import "aos/dist/aos.css";
 import "glightbox/dist/css/glightbox.min.css";
 import "drift-zoom/dist/drift-basic.css";
 
-// ===== UI Layout =====
-import Header from "./components/HeaderAndFooter/Header";
-import Footer from "./components/HeaderAndFooter/Footer";
-import HomePage from "./pages/HomePage";
+// ===== Layouts =====
+import UserLayout from "./layouts/UserLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+// ===== User Pages =====
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import LoginPage from "./pages/LoginPage.tsx";
@@ -27,6 +29,11 @@ import CheckoutPage from "./pages/CheckoutPage.tsx";
 import CheckoutSuccess from "./components/CheckoutComponent/CheckoutSuccess.tsx";
 import PaymentCallback from "./pages/PaymentCallback.tsx";
 
+// ===== Admin Pages =====
+import AdminDashboardPage from "./pages/AdminDashboardPage.tsx";
+import AdminUserPage from "./pages/AdminUserPage.tsx";
+
+
 function App() {
   useEffect(() => {
     AOS.init({
@@ -38,9 +45,10 @@ function App() {
   }, []);
 
   return (
-      <BrowserRouter>
-        <Header />
-        <Routes>
+    <BrowserRouter>
+      <Routes>
+        {/* ================= USER ROUTES ================= */}
+        <Route element={<UserLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/category/:id" element={<CategoryPage />} />
@@ -54,11 +62,19 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/checkout/success/:orderId" element={<CheckoutSuccess />} />
-          <Route path="/orders/payment-callback" element={<PaymentCallback />}/>
+          <Route path="/orders/payment-callback" element={<PaymentCallback />} />
+        </Route>
 
-        </Routes>
-        <Footer />
-      </BrowserRouter>
+        {/* ================= ADMIN ROUTES ================= */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="users" element={<AdminUserPage />} />
+          {/* TODO: thêm các route admin khác sau */}
+          {/* <Route path="products" element={<AdminProductPage />} /> */}
+          {/* <Route path="orders" element={<AdminOrderPage />} /> */}
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
