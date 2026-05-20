@@ -18,10 +18,6 @@ const RegisterPage = () => {
                     <div className="row justify-content-center">
                         <div className="col-lg-10">
                             <div className="registration-form-wrapper">
-                                <div className="form-header text-center">
-                                    <h2>Tạo tài khoản của bạn</h2>
-                                    <p>Tạo tài khoản của bạn và bắt đầu mua sắm với chúng tôi</p>
-                                </div>
 
                                 <div className="row">
                                     <div className="col-lg-8 mx-auto">
