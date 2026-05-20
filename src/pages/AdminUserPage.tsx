@@ -1,110 +1,100 @@
 import { useState, useEffect } from "react";
 import { userAdminApi } from "../api/userAdminApi";
-import type { UserModel } from "../models/UserModel";
 import AdminPagination from "../components/AdminUserComponent/AdminPagination";
 import UserDetailModal from "../components/AdminUserComponent/UserDetailModal";
 import UserFilterBar from "../components/AdminUserComponent/UserFilterBar";
 import UserTable from "../components/AdminUserComponent/UserTable";
+import type { UserModel } from "../models/UserModel";
 
 const AdminUserPage = () => {
-  // Quản lý danh sách người dùng thực tế từ API
   const [users, setUsers] = useState<UserModel[]>([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-
-  // Quản lý phân trang đồng bộ với Spring Data Page
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
-
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
+
+  // Thống kê sơ bộ số lượng tài khoản trên trang hiện tại
+  const activeCount = users.filter((u) => u.status).length;
+  const adminCount = users.filter((u) => u.role?.name === "ADMIN").length;
 
   // Hàm gọi API lấy danh sách phân trang và lọc từ Backend
   const fetchUsers = async (pageNumber: number) => {
     setLoading(true);
     try {
-      // Spring Boot Page tính từ trang 0, FE tính từ trang 1
+      // Spring Boot bắt đầu trang từ 0, Frontend bắt đầu từ 1
       const params = {
         keyword: search.trim() || undefined,
-        status: statusFilter === "active" ? "true" : statusFilter === "blocked" ? "false" : undefined,
-        roleId: roleFilter === "ADMIN" ? "1" : roleFilter === "USER" ? "2" : undefined,
+        status: statusFilter === "active" ? "true" : statusFilter === "locked" ? "false" : undefined,
+        roleId: roleFilter === "ADMIN" ? "1" : roleFilter === "USER" ? "2" : undefined, // Đồng bộ mã ID Role trong DB của bạn
         page: pageNumber - 1,
-        size: 6 // Số lượng bản ghi trên một trang
+        size: 6 // Số lượng bản ghi hiển thị trên mỗi trang
       };
 
       const data = await userAdminApi.getAllUsers(params);
 
-      // Map dữ liệu trả về từ cấu trúc Page của Spring Data
       setUsers(data.content || []);
       setTotalPages(data.totalPages || 1);
       setTotalElements(data.totalElements || 0);
-    } catch (err) {
-      console.error("Lỗi khi kết nối API lấy danh sách người dùng: ", err);
+    } catch (error) {
+      console.error("Lỗi khi kết nối lấy danh sách người dùng:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Tự động tải lại dữ liệu khi chuyển đổi số trang
+  // Kích hoạt gọi lại API mỗi khi một trong các điều kiện Lọc/Tìm kiếm/Chuyển trang thay đổi
   useEffect(() => {
     fetchUsers(currentPage);
-  }, [currentPage]);
+  }, [search, roleFilter, statusFilter, currentPage]);
 
-  // Xử lý khi nhấn nút "Áp dụng lọc dữ liệu" hoặc Tìm kiếm
-  const handleApplyFilter = () => {
-    setCurrentPage(1); // Đưa về trang đầu tiên khi lọc
-    fetchUsers(1);
+  // Xử lý khi người dùng thay đổi bộ lọc kiếm tìm -> Quay về trang đầu tiên tránh lỗi rỗng trang
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
   };
 
-  const handleToggleStatus = async (user: UserModel) => {
-    const actionText = user.status ? "KHÓA" : "MỞ KHÓA";
-    if (window.confirm(`Bạn có chắc chắn muốn ${actionText} tài khoản của ${user.fullName}?`)) {
-      try {
-        const res = await userAdminApi.toggleUserStatus(user.id);
-        alert(res.message || "Cập nhật trạng thái tài khoản thành công!");
+  const handleRoleFilterChange = (value: string) => {
+    setRoleFilter(value);
+    setCurrentPage(1);
+  };
 
-        // Nếu đang mở Modal chi tiết của chính user này, cập nhật lại trạng thái hiển thị trên Modal luôn
-        if (selectedUser && selectedUser.id === user.id) {
-          setSelectedUser({ ...selectedUser, status: !user.status });
-        }
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
 
-        // Reload lại danh sách ở trang hiện tại
-        fetchUsers(currentPage);
-      } catch (err) {
-        console.error(err);
-        alert("Thao tác thay đổi trạng thái tài khoản thất bại!");
+  // Hàm xử lý Bật / Tắt trạng thái hoạt động của tài khoản
+  const handleToggleStatus = async (id: number) => {
+    try {
+      await userAdminApi.toggleUserStatus(id);
+      // Gọi lại danh sách để cập nhật trạng thái mới nhất trực tiếp từ DB
+      fetchUsers(currentPage);
+      if (selectedUser && selectedUser.id === id) {
+        setSelectedUser({ ...selectedUser, status: !selectedUser.status });
       }
+    } catch (error) {
+      alert("Cập nhật trạng thái người dùng thất bại!");
     }
   };
 
-  // Đếm nhanh số liệu thống kê hiển thị trên màn hình dựa trên danh sách trang hiện tại
-  const activeCount = users.filter((u) => u.status).length;
-  const adminCount = users.filter((u) => u.role?.name === "ADMIN").length;
-
   return (
-      <div className="admin-page animate-fade-in">
+      <div className="admin-page">
         <div className="admin-page__header">
           <div>
             <h2 className="admin-page__title">Quản lý người dùng</h2>
-            <p className="admin-page__subtitle">
-              Xem danh sách, lọc tìm kiếm, phân quyền và khóa/mở khóa tài khoản thành viên hệ thống.
-            </p>
-          </div>
-          <div className="admin-page__header-actions">
-            <button className="btn btn-primary btn-sm" onClick={handleApplyFilter}>
-              <i className="bi bi-funnel-fill me-1"></i>
-              Áp dụng lọc dữ liệu
-            </button>
+            <p className="admin-page__subtitle">Hiển thị danh sách và phân quyền thành viên hệ thống</p>
           </div>
         </div>
 
-        {/* Thanh Strip Thống kê nhanh */}
-        <div className="admin-summary-strip">
+        {/* Thanh Strip hiển thị nhanh thống kê */}
+        <div className="admin-summary-strip mb-4">
           <div className="admin-summary-strip__item">
-            <i className="bi bi-people text-primary me-2"></i>
-            <span>Tổng số trang này: <strong>{users.length}</strong></span>
+            <i className="bi bi-people-fill text-primary me-2"></i>
+            <span>Tổng số hiển thị: <strong>{users.length}</strong></span>
           </div>
           <div className="admin-summary-strip__item">
             <i className="bi bi-check-circle text-success me-2"></i>
@@ -116,26 +106,26 @@ const AdminUserPage = () => {
           </div>
           <div className="admin-summary-strip__item">
             <i className="bi bi-shield-fill-check text-warning me-2"></i>
-            <span>Admin: <strong>{adminCount}</strong></span>
+            <span>Quản trị viên: <strong>{adminCount}</strong></span>
           </div>
         </div>
 
-        {/* Component Thanh Lọc */}
+        {/* Thanh công cụ Tìm kiếm và Lọc dữ liệu */}
         <UserFilterBar
             search={search}
-            onSearchChange={setSearch}
+            onSearchChange={handleSearchChange}
             roleFilter={roleFilter}
-            onRoleFilterChange={setRoleFilter}
+            onRoleFilterChange={handleRoleFilterChange}
             statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            totalCount={totalElements} // Tổng số bản ghi tìm thấy trong DB
+            onStatusFilterChange={handleStatusFilterChange}
+            totalCount={totalElements}
         />
 
-        {/* Bảng Dữ liệu kèm hiệu ứng loading */}
+        {/* Bảng danh sách người dùng kèm hiệu ứng tải */}
         {loading ? (
             <div className="text-center py-5 text-muted small">
               <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-              Đang tải dữ liệu...
+              Đang kết nối API xử lý dữ liệu...
             </div>
         ) : (
             <UserTable
@@ -145,14 +135,14 @@ const AdminUserPage = () => {
             />
         )}
 
-        {/* Phân trang */}
+        {/* Bộ nút phân trang */}
         <AdminPagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
         />
 
-        {/* Modal xem chi tiết */}
+        {/* Modal xem chi tiết thông tin */}
         <UserDetailModal
             user={selectedUser}
             onClose={() => setSelectedUser(null)}

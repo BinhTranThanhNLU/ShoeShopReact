@@ -13,4 +13,7 @@ export interface ProductModel {
     category: string | null,
     images: ProductImageModel[];
     variants: ProductVariantModel[];
+    status: boolean;
+    stock: number;
 }
+
