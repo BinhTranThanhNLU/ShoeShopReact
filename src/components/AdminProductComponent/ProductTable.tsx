@@ -1,4 +1,4 @@
-import type {ProductModel} from "../../models/ProductModel";
+import type { ProductModel } from "../../models/ProductModel";
 
 interface ProductTableProps {
   products: ProductModel[];
@@ -25,54 +25,85 @@ const ProductTable = ({ products, onView, onEdit, onDelete }: ProductTableProps)
           <tbody>
           {products.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center text-muted py-4">Không tìm thấy sản phẩm nào.</td>
+                <td colSpan={7} className="text-center text-muted py-4">
+                  Không tìm thấy sản phẩm nào.
+                </td>
               </tr>
           ) : (
-              products.map((product) => (
-                  <tr key={product.id}>
-                    <td>
-                      <img src={product.images} alt={product.name} className="rounded" style={{ width: "50px", height: "50px", objectFit: "cover" }} />
-                    </td>
-                    <td>
-                      <div className="fw-bold text-dark">{product.name}</div>
-                      <small className="text-muted">Mã: #{product.id}</small>
-                    </td>
-                    <td>
-                      <div>{product.brand}</div>
-                      <small className="badge bg-secondary-subtle text-secondary">{product.category}</small>
-                    </td>
-                    <td className="fw-bold text-primary">
-                      {product.price.toLocaleString("vi-VN")}đ
-                    </td>
-                    <td>
-                      {product.stock > 0 ? (
-                          <span className="text-success">{product.stock} chiếc</span>
-                      ) : (
-                          <span className="text-danger fw-bold">Hết hàng</span>
-                      )}
-                    </td>
-                    <td>
-                      {product.status ? (
-                          <span className="badge bg-success-subtle text-success">Kinh doanh</span>
-                      ) : (
-                          <span className="badge bg-danger-subtle text-danger">Tạm ngưng</span>
-                      )}
-                    </td>
-                    <td className="text-end">
-                      <div className="btn-group btn-group-sm">
-                        <button className="btn btn-outline-info" title="Xem chi tiết" onClick={() => onView(product)}>
-                          <i className="bi bi-eye"></i>
-                        </button>
-                        <button className="btn btn-outline-primary" title="Chỉnh sửa" onClick={() => onEdit(product)}>
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        <button className="btn btn-outline-danger" title="Xóa" onClick={() => onDelete(product.id)}>
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-              ))
+              products.map((product) => {
+                // Bóc tách an toàn đường dẫn ảnh từ phần tử đầu tiên của mảng image
+                const productImage = product.image && product.image.length > 0
+                    ? product.image[0].imageUrl
+                    : "https://placehold.co/50x50?text=No+Image";
+
+                return (
+                    <tr key={product.id}>
+                      <td>
+                        <img
+                            src={productImage}
+                            alt={product.name}
+                            className="rounded border"
+                            style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://placehold.co/50x50?text=Error";
+                            }}
+                        />
+                      </td>
+                      <td>
+                        <div className="fw-bold text-dark">{product.name}</div>
+                        <small className="text-muted">Mã: #{product.id}</small>
+                      </td>
+                      <td>
+                        <div className="text-capitalize">{product.brand}</div>
+                        <small className="badge bg-secondary-subtle text-secondary">
+                          {product.category}
+                        </small>
+                      </td>
+                      <td className="fw-bold text-primary">
+                        {product.price ? product.price.toLocaleString("vi-VN") : 0}đ
+                      </td>
+                      <td>
+                        {product.totalQuantity > 0 ? (
+                            <span className="text-success">{product.totalQuantity} chiếc</span>
+                        ) : (
+                            <span className="text-danger fw-bold">Hết hàng</span>
+                        )}
+                      </td>
+                      <td>
+                        {product.status ? (
+                            <span className="badge bg-success-subtle text-success">Kinh doanh</span>
+                        ) : (
+                            <span className="badge bg-danger-subtle text-danger">Tạm ngưng</span>
+                        )}
+                      </td>
+                      <td className="text-end">
+                        <div className="btn-group btn-group-sm">
+                          <button
+                              className="btn btn-outline-info"
+                              title="Xem chi tiết"
+                              onClick={() => onView(product)}
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                          <button
+                              className="btn btn-outline-primary"
+                              title="Chỉnh sửa"
+                              onClick={() => onEdit(product)}
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                          <button
+                              className="btn btn-outline-danger"
+                              title="Xóa"
+                              onClick={() => onDelete(product.id)}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                );
+              })
           )}
           </tbody>
         </table>
