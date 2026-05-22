@@ -1,122 +1,155 @@
-import { useState, useMemo } from "react";
-import { mockProducts } from "../mockData/productMockData";
-import type {ProductModel} from "../models/ProductModel";
+import { useState, useEffect } from "react";
+import { productAdminApi } from "../api/productAdminApi";
 import ProductFilterBar from "../components/AdminProductComponent/ProductFilterBar";
 import ProductTable from "../components/AdminProductComponent/ProductTable";
 import ProductModal from "../components/AdminProductComponent/ProductModal";
-import AdminPagination from "../components/AdminUserComponent/AdminPagination"; // Tái sử dụng Pagination có sẵn của dự án
+import AdminPagination from "../components/AdminUserComponent/AdminPagination";
+import type { ProductModel } from "../models/ProductModel";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6; // Số lượng sản phẩm hiển thị trên một trang
 
-const AdminProductPage = () => {
-  const [products, setProducts] = useState<ProductModel[]>(mockProducts);
+export const AdminProductPage = () => {
+  // State quản lý danh sách dữ liệu thực tế nhận từ API Backend
+  const [products, setProducts] = useState<ProductModel[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // State quản lý các bộ lọc tìm kiếm và phân trang
   const [search, setSearch] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
 
-  // Quản lý Modal state
+  // State quản lý đóng/mở và chế độ của Modal popup (Xem / Thêm / Sửa)
   const [modalMode, setModalMode] = useState<"view" | "add" | "edit" | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ProductModel | null>(null);
 
-  // Logic Lọc Dữ Liệu
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const matchSearch =
-          !search ||
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          p.brand.toLowerCase().includes(search.toLowerCase());
-
-      const matchBrand = !brandFilter || p.brand === brandFilter;
-
-      const matchStatus =
-          !statusFilter ||
-          (statusFilter === "active" ? p.status : !p.status);
-
-      return matchSearch && matchBrand && matchStatus;
-    });
-  }, [products, search, brandFilter, statusFilter]);
-
-  // Logic Phân Trang dữ liệu sau lọc
-  const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE) || 1;
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-    return filteredProducts.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredProducts, currentPage]);
-
-  // Hành động mở Modal xem chi tiết
-  const handleViewDetails = (product: ProductModel) => {
-    setSelectedProduct(product);
-    setModalMode("view");
-  };
-
-  // Hành động mở Modal chỉnh sửa
-  const handleEditInit = (product: ProductModel) => {
-    setSelectedProduct(product);
-    setModalMode("edit");
-  };
-
-  // Hành động xóa sản phẩm kèm cảnh báo confirm
-  const handleDeleteProduct = (id: number) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm mã #${id} không?`)) {
-      setProducts(products.filter((p) => p.id !== id));
-    }
-  };
-
-  // Xử lý Lưu thông tin khi Thêm / Sửa sản phẩm
-  const handleSaveProduct = (formData: Partial<ProductModel>) => {
-    if (modalMode === "add") {
-      const newProduct: ProductModel = {
-        id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
-        name: formData.name || "Sản phẩm chưa đặt tên",
-        brand: formData.brand || "Nike",
-        category: formData.category || "Chưa phân loại",
-        price: formData.price || 0,
-        stock: formData.stock || 0,
-        image: formData.images || "https://placehold.co/150",
-        status: formData.status ?? true,
-        description: formData.description,
-        createdAt: new Date().toISOString().split("T")[0]
+  // Hàm kết nối API để quét dữ liệu thực tế từ Database MySQL
+  const fetchProducts = async (pageNumber: number) => {
+    setLoading(true);
+    try {
+      // Chuẩn hóa bộ lọc (Spring Boot tính trang từ số 0, Frontend tính từ số 1)
+      const params = {
+        keyword: search.trim() || undefined,
+        brand: brandFilter || undefined,
+        category: categoryFilter || undefined,
+        page: pageNumber - 1,
+        size: PAGE_SIZE
       };
-      setProducts([newProduct, ...products]);
-    } else if (modalMode === "edit" && selectedProduct) {
-      setProducts(products.map(p => p.id === selectedProduct.id ? { ...p, ...formData } as ProductModel : p));
+
+      // Thực hiện gọi request thông qua axiosClient
+      const data = await productAdminApi.getAll(params);
+
+      // Đổ dữ liệu phân trang thực tế vào State để render giao diện
+      setProducts(data.content || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalElements(data.totalElements || 0);
+    } catch (error) {
+      console.error("Lỗi khi kết nối lấy danh sách sản phẩm từ Backend:", error);
+    } finally {
+      setLoading(false);
     }
-    setModalMode(null);
-    setSelectedProduct(null);
+  };
+
+  // Tự động kích hoạt gọi lại API mỗi khi người dùng thay đổi bộ lọc hoặc bấm chuyển trang
+  useEffect(() => {
+    fetchProducts(currentPage);
+  }, [search, brandFilter, categoryFilter, currentPage]);
+
+  // Xử lý khi gõ tìm kiếm hoặc đổi select-box (Đưa về trang 1 để tránh lệch trang)
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  };
+
+  const handleBrandChange = (val: string) => {
+    setBrandFilter(val);
+    setCurrentPage(1);
+  };
+
+  // Hành động Xóa sản phẩm thực tế xuống Database
+  const handleDeleteProduct = async (id: number) => {
+    if (window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm mã #${id} khỏi hệ thống?`)) {
+      try {
+        await productAdminApi.delete(id);
+        alert("Xóa sản phẩm thành công!");
+        fetchProducts(currentPage); // Tải lại trang hiện tại để cập nhật bảng dữ liệu
+      } catch (error) {
+        alert("Xóa sản phẩm thất bại! Sản phẩm này có thể đã nằm trong giỏ hàng hoặc hóa đơn của khách.");
+      }
+    }
+  };
+
+  // Hành động mở Modal (Gọi API lấy bản ghi mới nhất từ DB để đảm bảo chính xác)
+  const handleOpenModal = async (mode: "view" | "edit", product: ProductModel) => {
+    try {
+      const freshData = await productAdminApi.getById(product.id);
+      setSelectedProduct(freshData);
+      setModalMode(mode);
+    } catch (error) {
+      alert("Không thể tải thông tin chi tiết sản phẩm từ máy chủ!");
+    }
+  };
+
+  // Xử lý sự kiện bấm nút Lưu thông tin trên Modal (Xử lý cả Thêm mới và Chỉnh sửa)
+  const handleSaveProduct = async (formData: FormData) => {
+    try {
+      if (modalMode === "add") {
+        await productAdminApi.create(formData);
+        alert("Thêm mới sản phẩm kèm ảnh thành công!");
+        setCurrentPage(1);
+      } else if (modalMode === "edit" && selectedProduct) {
+        await productAdminApi.update(selectedProduct.id, formData);
+        alert("Cập nhật sản phẩm thành công!");
+        fetchProducts(currentPage);
+      }
+      setModalMode(null);
+      setSelectedProduct(null);
+    } catch (error) {
+      console.error(error);
+      alert("Thao tác thất bại! Lỗi upload hình ảnh hoặc dữ liệu không hợp lệ.");
+    }
   };
 
   return (
       <div className="admin-page p-4">
-        {/* Tiêu đề Trang */}
+        {/* Tiêu đề phân hệ quản trị */}
         <div className="admin-page__header d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2 className="admin-page__title fw-bold text-dark m-0">Quản Lý Sản Phẩm</h2>
-            <p className="admin-page__subtitle text-muted small m-0">Cập nhật, chỉnh sửa danh mục kho hàng của cửa hàng.</p>
+            <p className="admin-page__subtitle text-muted small m-0">Đồng bộ kho hàng, thương hiệu và thông tin trực tiếp từ Database hệ thống.</p>
           </div>
         </div>
 
-        {/* Thanh lọc & Nút bấm thêm mới */}
+        {/* Thanh công cụ tìm kiếm và lọc dữ liệu thật */}
         <ProductFilterBar
             search={search}
-            onSearchChange={(val) => { setSearch(val); setCurrentPage(1); }}
+            onSearchChange={handleSearchChange}
             brandFilter={brandFilter}
-            onBrandFilterChange={(val) => { setBrandFilter(val); setCurrentPage(1); }}
-            statusFilter={statusFilter}
-            onStatusFilterChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}
-            totalCount={filteredProducts.length}
+            onBrandFilterChange={handleBrandChange}
+            statusFilter={""} // Để trống hoặc truyền giá trị mặc định theo thiết kế Filter gốc của bạn
+            onStatusFilterChange={() => {}}
+            totalCount={totalElements}
             onAddNew={() => setModalMode("add")}
         />
 
-        {/* Bảng chứa dữ liệu */}
-        <ProductTable
-            products={paginatedProducts}
-            onView={handleViewDetails}
-            onEdit={handleEditInit}
-            onDelete={handleDeleteProduct}
-        />
+        {/* Bảng chứa danh sách kèm hiệu ứng Loading xoay tròn */}
+        {loading ? (
+            <div className="text-center py-5 text-muted small">
+              <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+              Đang kết nối API đồng bộ dữ liệu kho hàng...
+            </div>
+        ) : (
+            <ProductTable
+                products={products}
+                onView={(p) => handleOpenModal("view", p)}
+                onEdit={(p) => handleOpenModal("edit", p)}
+                onDelete={handleDeleteProduct}
+            />
+        )}
 
-        {/* Thanh Phân Trang */}
+        {/* Thanh Phân Trang đồng bộ API */}
         <div className="mt-3 d-flex justify-content-end">
           <AdminPagination
               currentPage={currentPage}
@@ -125,7 +158,7 @@ const AdminProductPage = () => {
           />
         </div>
 
-        {/* Popup Modal dùng chung cho Xem/Thêm/Sửa */}
+        {/* Popup Modal dùng chung cho Xem chi tiết / Thêm mới / Chỉnh sửa */}
         <ProductModal
             mode={modalMode}
             product={selectedProduct}
