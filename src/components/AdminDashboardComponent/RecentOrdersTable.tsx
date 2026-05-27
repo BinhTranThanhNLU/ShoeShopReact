@@ -1,14 +1,21 @@
-import { mockRecentOrders } from "../../mockData/dashboardMockData";
+import type { OrderModel } from "../../models/OrderModel";
+
+interface RecentOrdersTableProps {
+  orders: OrderModel[];
+}
 
 const statusConfig: Record<string, { label: string; className: string }> = {
-  PENDING:    { label: "Chờ xử lý",   className: "badge-warning" },
-  PROCESSING: { label: "Đang xử lý",  className: "badge-info"    },
-  SHIPPING:   { label: "Đang giao",   className: "badge-primary"  },
-  DELIVERED:  { label: "Đã giao",     className: "badge-success"  },
-  CANCELLED:  { label: "Đã huỷ",      className: "badge-danger"   },
+  PENDING: { label: "Chờ xử lý", className: "badge-warning" },
+  CONFIRMED: { label: "Đã xác nhận", className: "badge-info" },
+  SHIPPING: { label: "Đang giao", className: "badge-primary" },
+  SHIPPED: { label: "Đang giao", className: "badge-primary" },
+  DELIVERED: { label: "Đã giao", className: "badge-success" },
+  CANCELLED: { label: "Đã huỷ", className: "badge-danger" },
 };
 
-const RecentOrdersTable = () => {
+const RecentOrdersTable = ({ orders }: RecentOrdersTableProps) => {
+  const totalItems = (order: OrderModel) => order.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+
   return (
     <div className="dashboard-card">
       <div className="dashboard-card__header">
@@ -27,14 +34,15 @@ const RecentOrdersTable = () => {
               <tr>
                 <th>Mã đơn</th>
                 <th>Khách hàng</th>
-                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Thanh toán</th>
                 <th>Tổng tiền</th>
                 <th>Trạng thái</th>
                 <th>Ngày đặt</th>
               </tr>
             </thead>
             <tbody>
-              {mockRecentOrders.map((order) => {
+              {orders.map((order) => {
                 const status = statusConfig[order.status] ?? { label: order.status, className: "badge-secondary" };
                 return (
                   <tr key={order.id}>
@@ -50,7 +58,10 @@ const RecentOrdersTable = () => {
                       </div>
                     </td>
                     <td>
-                      <span className="text-muted">{order.items.length} sản phẩm</span>
+                        <span className="text-muted">{totalItems(order)} sản phẩm</span>
+                      </td>
+                      <td>
+                        <span className="text-muted small">{order.paymentMethod || "-"}</span>
                     </td>
                     <td>
                       <span className="admin-table__amount">

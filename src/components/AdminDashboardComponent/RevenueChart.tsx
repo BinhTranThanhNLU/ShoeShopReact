@@ -1,7 +1,12 @@
-import { mockMonthlyRevenue } from "../../mockData/dashboardMockData";
+import type { DashboardRevenueModel } from "../../api/dashboardApi";
 
-const RevenueChart = () => {
-  const maxRevenue = Math.max(...mockMonthlyRevenue.map((d) => d.revenue));
+interface RevenueChartProps {
+  revenueByMonth: DashboardRevenueModel[];
+  year: number;
+}
+
+const RevenueChart = ({ revenueByMonth, year }: RevenueChartProps) => {
+  const maxRevenue = Math.max(...revenueByMonth.map((d) => d.revenue), 0);
 
   return (
     <div className="dashboard-card">
@@ -12,12 +17,12 @@ const RevenueChart = () => {
         </h5>
         <div className="dashboard-card__legend">
           <span className="legend-dot legend-dot--primary"></span>
-          <span className="text-muted small">Năm 2025</span>
+          <span className="text-muted small">Năm {year}</span>
         </div>
       </div>
       <div className="dashboard-card__body">
         <div className="revenue-chart">
-          {mockMonthlyRevenue.map((item) => {
+          {revenueByMonth.map((item) => {
             const heightPct = maxRevenue > 0 ? (item.revenue / maxRevenue) * 100 : 0;
             return (
               <div key={item.month} className="revenue-chart__col">
@@ -28,11 +33,11 @@ const RevenueChart = () => {
                     title={`${item.revenue.toLocaleString("vi-VN")}đ`}
                   >
                     <span className="revenue-chart__tooltip">
-                      {(item.revenue / 1_000_000).toFixed(1)}M
+                      {item.revenue > 0 ? `${(item.revenue / 1_000_000).toFixed(1)}M` : "0"}
                     </span>
                   </div>
                 </div>
-                <span className="revenue-chart__label">{item.month}</span>
+                <span className="revenue-chart__label">{item.label}</span>
               </div>
             );
           })}
