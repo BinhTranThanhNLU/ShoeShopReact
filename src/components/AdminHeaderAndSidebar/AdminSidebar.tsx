@@ -28,7 +28,7 @@ const navConfig: NavGroup[] = [
     items: [
       { label: "Người dùng", icon: "bi-people-fill", path: "/admin/users" },
       { label: "Sản phẩm", icon: "bi-box-seam", path: "/admin/products" },
-      { label: "Đơn hàng", icon: "bi-receipt", path: "/admin/orders", badge: 5 },
+      { label: "Đơn hàng", icon: "bi-receipt", path: "/admin/orders"},
       { label: "Danh mục", icon: "bi-tags-fill", path: "/admin/categories" },
       { label: "Thương hiệu", icon: "bi-bookmark-star-fill", path: "/admin/brands" },
     ],

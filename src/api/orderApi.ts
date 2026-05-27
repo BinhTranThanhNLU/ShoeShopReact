@@ -2,6 +2,20 @@ import type { OrderModel } from "../models/OrderModel";
 import type { CheckoutRequest } from "../modelRequest/CheckoutRequest";
 import axiosClient from "./axiosClient";
 
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+}
+
+export interface AdminOrderListParams {
+  keyword?: string;
+  status?: string;
+  paymentStatus?: string;
+  page: number;
+  size: number;
+}
+
 export const orderApi = {
   // Create a new order from checkout
   createOrder: async (data: CheckoutRequest): Promise<OrderModel> => {
@@ -12,6 +26,28 @@ export const orderApi = {
   // Get user's orders
   getUserOrders: async (): Promise<OrderModel[]> => {
     const response = await axiosClient.get("/orders/me");
+    return response.data;
+  },
+
+  getAdminOrders: async (
+    params: AdminOrderListParams,
+  ): Promise<PageResponse<OrderModel>> => {
+    const response = await axiosClient.get("/admin/orders", { params });
+    return response.data;
+  },
+
+  getAdminOrderById: async (orderId: number): Promise<OrderModel> => {
+    const response = await axiosClient.get(`/admin/orders/${orderId}`);
+    return response.data;
+  },
+
+  updateAdminOrderStatus: async (
+    orderId: number,
+    status: string,
+  ): Promise<OrderModel> => {
+    const response = await axiosClient.patch(`/admin/orders/${orderId}/status`, {
+      status,
+    });
     return response.data;
   },
 
