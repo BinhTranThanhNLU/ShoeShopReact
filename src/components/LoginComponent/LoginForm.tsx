@@ -3,53 +3,124 @@ import { AuthInput } from "./AuthInput";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../../api/authApi.ts";
 
+type LoginFieldErrors = Partial<Record<"email" | "password", string>>;
+
+const INVALID_LOGIN_MESSAGE = "Email hoặc mật khẩu không đúng !";
+
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [httpError, setHttpError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const validateFields = () => {
+    const nextErrors: LoginFieldErrors = {};
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      nextErrors.email = "Email không được để trống";
+    } else if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
+      nextErrors.email = "Email không hợp lệ";
+    }
+
+    if (!password) {
+      nextErrors.password = "Mật khẩu không được để trống";
+    } else if (password.length < 6) {
+      nextErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    setFieldErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const applyServerErrors = (errors: unknown) => {
+    if (!errors) {
+      return false;
+    }
+
+    if (Array.isArray(errors)) {
+      setHttpError(errors[0] || "Đăng nhập thất bại");
+      return true;
+    }
+
+    if (typeof errors === "object") {
+      const nextFieldErrors: LoginFieldErrors = {};
+
+      for (const [key, value] of Object.entries(errors as Record<string, unknown>)) {
+        if (key === "email" || key === "password") {
+          nextFieldErrors[key] = String(value);
+        }
+      }
+
+      if (Object.keys(nextFieldErrors).length > 0) {
+        setFieldErrors((current) => ({ ...current, ...nextFieldErrors }));
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const applyLoginFailureMessage = (message?: string) => {
+    if (!message) {
+      return false;
+    }
+
+    const normalizedMessage = message.toLowerCase();
+    const isInvalidLogin =
+      normalizedMessage.includes("email hoặc mật khẩu không đúng") ||
+      normalizedMessage.includes("sai tài khoản hoặc mật khẩu") ||
+      normalizedMessage.includes("invalid credentials");
+
+    if (isInvalidLogin) {
+      setFieldErrors({
+        email: INVALID_LOGIN_MESSAGE,
+        password: INVALID_LOGIN_MESSAGE,
+      });
+      return true;
+    }
+
+    return false;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setFieldErrors({});
     setHttpError(null);
 
-    // LOG 1: Kiểm tra xem sự kiện submit form hoạt động chưa
-    console.log(">>> [LOG FRONTEND 1] Tiến hành nhấn nút Submit Đăng nhập với Email:", email);
+    if (!validateFields()) {
+      return;
+    }
 
     try {
-      const data = await authApi.login({ email, password });
-
-      // LOG 2: Kiểm tra dữ liệu phản hồi từ API khi thành công
-      console.log(">>> [LOG FRONTEND 2] API phản hồi Đăng nhập THÀNH CÔNG! Dữ liệu nhận về:", data);
+      const data = await authApi.login({ email: email.trim(), password });
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       if (data.user.role?.name === "ADMIN") {
-        console.log(">>> [LOG FRONTEND 3A] Tài khoản là ADMIN, điều hướng về trang quản trị...");
         navigate("/admin");
         window.location.reload();
         return;
       }
 
-      console.log(">>> [LOG FRONTEND 3B] Tài khoản là USER, điều hướng về trang chủ /home...");
       navigate("/home");
       window.location.reload();
     } catch (err: any) {
-      // LOG 4: Khối catch được kích hoạt khi server trả về lỗi (Mã 400, 401, 403, 500)
-      console.error(">>> [LOG FRONTEND ERROR] Phát hiện lỗi phản hồi từ API Backend:", err);
+      const responseData = err?.response?.data;
 
-      if (err.response) {
-        console.log(">>> Data lỗi chi tiết từ Server:", err.response.data);
-        console.log(">>> Mã trạng thái HTTP Status:", err.response.status);
+      if (responseData?.errors && applyServerErrors(responseData.errors)) {
+        return;
       }
 
-      const serverMessage = err.response?.data?.message || "Đăng nhập thất bại, sai tài khoản hoặc mật khẩu!";
-      console.log(">>> Tin nhắn lỗi gán vào Giao diện:", serverMessage);
+      if (applyLoginFailureMessage(responseData?.message)) {
+        return;
+      }
 
-      setHttpError(serverMessage);
+      setHttpError(
+        responseData?.message || "Đăng nhập thất bại, sai tài khoản hoặc mật khẩu!"
+      );
     }
   };
 
@@ -69,7 +140,7 @@ export const LoginForm = () => {
           <p>Đăng nhập vào tài khoản của bạn</p>
         </div>
 
-        <form className="auth-form-content" onSubmit={handleSubmit}>
+        <form className="auth-form-content" onSubmit={handleSubmit} noValidate>
 
           {/* Hiển thị lỗi tài khoản bị khóa hoặc sai thông tin ngay trên form */}
           {httpError && (
@@ -80,24 +151,34 @@ export const LoginForm = () => {
           )}
 
           <AuthInput
+              name="email"
               type="email"
               placeholder="Email"
               icon="bi-envelope"
-              required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              error={fieldErrors.email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (fieldErrors.email) {
+                  setFieldErrors((current) => ({ ...current, email: undefined }));
+                }
+              }}
           />
 
           <AuthInput
+              name="password"
               type="password"
               placeholder="Password"
               icon="bi-lock"
-              required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              error={fieldErrors.password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (fieldErrors.password) {
+                  setFieldErrors((current) => ({ ...current, password: undefined }));
+                }
+              }}
           />
-
-          {error && <p className="text-danger">{error}</p>}
 
           <div className="form-options mb-4">
             <div className="remember-me">

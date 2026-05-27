@@ -40,16 +40,22 @@ export const RegisterForm = () => {
         e.preventDefault();
         setHttpError(null);
         setSuccess(null);
+        setFieldErrors({});
 
         if (!formData.fullName || !formData.email || !formData.password) {
-            setHttpError("Vui lòng điền đầy đủ thông tin!");
+            setFieldErrors({
+                fullName: !formData.fullName ? "Họ tên không được để trống" : "",
+                email: !formData.email ? "Email không được để trống" : "",
+                password: !formData.password ? "Mật khẩu không được để trống" : "",
+            });
             return;
         }
 
         if (!validatePassword(formData.password)) {
-            setHttpError(
-                "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt."
-            );
+            setFieldErrors({
+                password:
+                    "Mật khẩu phải có ít nhất 5 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+            });
             return;
         }
 
@@ -107,7 +113,6 @@ export const RegisterForm = () => {
                             id="fullName"
                             name="fullName"
                             placeholder="Họ và Tên"
-                            required
                             autoComplete="name"
                             value={formData.fullName}
                             onChange={handleChange}
@@ -129,7 +134,6 @@ export const RegisterForm = () => {
                             id="email"
                             name="email"
                             placeholder="Email"
-                            required
                             autoComplete="email"
                             value={formData.email}
                             onChange={handleChange}
@@ -153,8 +157,6 @@ export const RegisterForm = () => {
                                     id="password"
                                     name="password"
                                     placeholder="Password"
-                                    required
-                                    minLength={8}
                                     autoComplete="new-password"
                                     value={formData.password}
                                     onChange={handleChange}
@@ -168,9 +170,9 @@ export const RegisterForm = () => {
                                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </span>
-                                {fieldErrors.confirmPassword && (
+                                {fieldErrors.password && (
                                     <div className="invalid-feedback text-danger">
-                                        {fieldErrors.confirmPassword}
+                                        {fieldErrors.password}
                                     </div>
                                 )}
                             </div>
@@ -179,12 +181,12 @@ export const RegisterForm = () => {
                             <div className="form-floating">
                                 <input
                                     type={showConfirmPassword ? "text" : "password"}
-                                    className="form-control"
+                                    className={`form-control ${
+                                        fieldErrors.confirmPassword ? "is-invalid" : ""
+                                    }`}
                                     id="confirmPassword"
                                     name="confirmPassword"
                                     placeholder="Confirm Password"
-                                    required
-                                    minLength={8}
                                     autoComplete="new-password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -201,6 +203,11 @@ export const RegisterForm = () => {
                       <Eye size={18} />
                   )}
                 </span>
+                                {fieldErrors.confirmPassword && (
+                                    <div className="invalid-feedback text-danger">
+                                        {fieldErrors.confirmPassword}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -213,7 +220,6 @@ export const RegisterForm = () => {
                             name="termsCheck"
                             checked={termsChecked}
                             onChange={(e) => setTermsChecked(e.target.checked)}
-                            required
                         />
                         <label className="form-check-label" htmlFor="termsCheck">
                             Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và{" "}

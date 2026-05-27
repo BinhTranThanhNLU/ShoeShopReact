@@ -8533,7 +8533,26 @@ section,
 
 .login .input-group {
   position: relative;
+}
+
+.login .login-field {
   margin-bottom: 20px;
+}
+
+.login .field-error {
+  line-height: 1.2;
+  font-weight: 500;
+  padding-left: 4px;
+}
+
+.login .input-group .form-control.is-invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #dc3545, transparent 90%);
+}
+
+.login .input-group .form-control.is-invalid:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #dc3545, transparent 85%);
 }
 
 .login .input-group .input-icon {
