@@ -31,6 +31,7 @@ import PaymentCallback from "./pages/PaymentCallback.tsx";
 
 // ===== Admin Pages =====
 import AdminDashboardPage from "./pages/AdminDashboardPage.tsx";
+import AdminCategoryPage from "./pages/AdminCategoryPage.tsx";
 import AdminUserPage from "./pages/AdminUserPage.tsx";
 import AdminProductPage from "./pages/AdminProductPage.tsx";
 import { AdminOrderPage } from "./pages/AdminOrderPage.tsx";
@@ -71,8 +72,8 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="users" element={<AdminUserPage />} />
-          {/* TODO: thêm các route admin khác sau */}
-           <Route path="products" element={<AdminProductPage />} />
+          <Route path="categories" element={<AdminCategoryPage />} />
+          <Route path="products" element={<AdminProductPage />} />
           <Route path="orders" element={<AdminOrderPage />} />
         </Route>
       </Routes>

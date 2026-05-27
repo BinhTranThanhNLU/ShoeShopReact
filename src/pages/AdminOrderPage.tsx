@@ -75,7 +75,9 @@ export const AdminOrderPage = () => {
       );
       setSelectedOrder(updatedOrder);
       setOrders((prev) =>
-        prev.map((order) => (order.id === updatedOrder.id ? updatedOrder : order)),
+        prev.map((order) =>
+          order.id === updatedOrder.id ? updatedOrder : order,
+        ),
       );
       setModalMode("view");
       await fetchOrders(currentPage);
@@ -94,7 +96,8 @@ export const AdminOrderPage = () => {
             Quản Lý Đơn Hàng
           </h2>
           <p className="admin-page__subtitle text-muted small m-0">
-            Theo dõi trạng thái xử lý, thanh toán và thông tin giao nhận của từng đơn hàng.
+            Theo dõi trạng thái xử lý, thanh toán và thông tin giao nhận của
+            từng đơn hàng.
           </p>
         </div>
       </div>
@@ -102,19 +105,33 @@ export const AdminOrderPage = () => {
       <div className="admin-summary-strip mb-4">
         <div className="admin-summary-strip__item">
           <i className="bi bi-receipt text-primary me-2"></i>
-          <span>Tổng hiển thị: <strong>{orders.length}</strong></span>
+          <span>
+            Tổng hiển thị: <strong>{orders.length}</strong>
+          </span>
         </div>
         <div className="admin-summary-strip__item">
           <i className="bi bi-list-ol text-success me-2"></i>
-          <span>Tổng đơn: <strong>{totalElements}</strong></span>
+          <span>
+            Tổng đơn: <strong>{totalElements}</strong>
+          </span>
         </div>
         <div className="admin-summary-strip__item">
           <i className="bi bi-hourglass-split text-warning me-2"></i>
-          <span>Chờ xác nhận: <strong>{orders.filter((order) => order.status === "PENDING").length}</strong></span>
+          <span>
+            Chờ xác nhận:{" "}
+            <strong>
+              {orders.filter((order) => order.status === "PENDING").length}
+            </strong>
+          </span>
         </div>
         <div className="admin-summary-strip__item">
           <i className="bi bi-cash-coin text-info me-2"></i>
-          <span>Thanh toán COD: <strong>{orders.filter((order) => order.paymentMethod === "COD").length}</strong></span>
+          <span>
+            Thanh toán COD:{" "}
+            <strong>
+              {orders.filter((order) => order.paymentMethod === "COD").length}
+            </strong>
+          </span>
         </div>
       </div>
 

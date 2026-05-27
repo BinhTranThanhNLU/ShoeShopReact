@@ -30,7 +30,6 @@ const navConfig: NavGroup[] = [
       { label: "Sản phẩm", icon: "bi-box-seam", path: "/admin/products" },
       { label: "Đơn hàng", icon: "bi-receipt", path: "/admin/orders"},
       { label: "Danh mục", icon: "bi-tags-fill", path: "/admin/categories" },
-      { label: "Thương hiệu", icon: "bi-bookmark-star-fill", path: "/admin/brands" },
     ],
   },
   {

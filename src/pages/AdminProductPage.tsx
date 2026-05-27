@@ -22,8 +22,12 @@ export const AdminProductPage = () => {
   const [totalElements, setTotalElements] = useState(0);
 
   // State quản lý đóng/mở và chế độ của Modal popup (Xem / Thêm / Sửa)
-  const [modalMode, setModalMode] = useState<"view" | "add" | "edit" | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<ProductModel | null>(null);
+  const [modalMode, setModalMode] = useState<"view" | "add" | "edit" | null>(
+    null,
+  );
+  const [selectedProduct, setSelectedProduct] = useState<ProductModel | null>(
+    null,
+  );
 
   // Hàm kết nối API để quét dữ liệu thực tế từ Database MySQL
   const fetchProducts = async (pageNumber: number) => {
@@ -35,7 +39,7 @@ export const AdminProductPage = () => {
         brand: brandFilter || undefined,
         category: categoryFilter || undefined,
         page: pageNumber - 1,
-        size: PAGE_SIZE
+        size: PAGE_SIZE,
       };
 
       // Thực hiện gọi request thông qua axiosClient
@@ -46,7 +50,10 @@ export const AdminProductPage = () => {
       setTotalPages(data.totalPages || 1);
       setTotalElements(data.totalElements || 0);
     } catch (error) {
-      console.error("Lỗi khi kết nối lấy danh sách sản phẩm từ Backend:", error);
+      console.error(
+        "Lỗi khi kết nối lấy danh sách sản phẩm từ Backend:",
+        error,
+      );
     } finally {
       setLoading(false);
     }
@@ -70,19 +77,28 @@ export const AdminProductPage = () => {
 
   // Hành động Xóa sản phẩm thực tế xuống Database
   const handleDeleteProduct = async (id: number) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm mã #${id} khỏi hệ thống?`)) {
+    if (
+      window.confirm(
+        `Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm mã #${id} khỏi hệ thống?`,
+      )
+    ) {
       try {
         await productAdminApi.delete(id);
         alert("Xóa sản phẩm thành công!");
         fetchProducts(currentPage); // Tải lại trang hiện tại để cập nhật bảng dữ liệu
       } catch (error) {
-        alert("Xóa sản phẩm thất bại! Sản phẩm này có thể đã nằm trong giỏ hàng hoặc hóa đơn của khách.");
+        alert(
+          "Xóa sản phẩm thất bại! Sản phẩm này có thể đã nằm trong giỏ hàng hoặc hóa đơn của khách.",
+        );
       }
     }
   };
 
   // Hành động mở Modal (Gọi API lấy bản ghi mới nhất từ DB để đảm bảo chính xác)
-  const handleOpenModal = async (mode: "view" | "edit", product: ProductModel) => {
+  const handleOpenModal = async (
+    mode: "view" | "edit",
+    product: ProductModel,
+  ) => {
     try {
       const freshData = await productAdminApi.getById(product.id);
       setSelectedProduct(freshData);
@@ -108,64 +124,77 @@ export const AdminProductPage = () => {
       setSelectedProduct(null);
     } catch (error) {
       console.error(error);
-      alert("Thao tác thất bại! Lỗi upload hình ảnh hoặc dữ liệu không hợp lệ.");
+      alert(
+        "Thao tác thất bại! Lỗi upload hình ảnh hoặc dữ liệu không hợp lệ.",
+      );
     }
   };
 
   return (
-      <div className="admin-page p-4">
-        {/* Tiêu đề phân hệ quản trị */}
-        <div className="admin-page__header d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h2 className="admin-page__title fw-bold text-dark m-0">Quản Lý Sản Phẩm</h2>
-            <p className="admin-page__subtitle text-muted small m-0">Đồng bộ kho hàng, thương hiệu và thông tin trực tiếp từ Database hệ thống.</p>
-          </div>
+    <div className="admin-page p-4">
+      {/* Tiêu đề phân hệ quản trị */}
+      <div className="admin-page__header d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="admin-page__title fw-bold text-dark m-0">
+            Quản Lý Sản Phẩm
+          </h2>
+          <p className="admin-page__subtitle text-muted small m-0">
+            Đồng bộ kho hàng, thương hiệu và thông tin trực tiếp từ Database hệ
+            thống.
+          </p>
         </div>
+      </div>
 
-        {/* Thanh công cụ tìm kiếm và lọc dữ liệu thật */}
-        <ProductFilterBar
-            search={search}
-            onSearchChange={handleSearchChange}
-            brandFilter={brandFilter}
-            onBrandFilterChange={handleBrandChange}
-            statusFilter={""} // Để trống hoặc truyền giá trị mặc định theo thiết kế Filter gốc của bạn
-            onStatusFilterChange={() => {}}
-            totalCount={totalElements}
-            onAddNew={() => setModalMode("add")}
+      {/* Thanh công cụ tìm kiếm và lọc dữ liệu thật */}
+      <ProductFilterBar
+        search={search}
+        onSearchChange={handleSearchChange}
+        brandFilter={brandFilter}
+        onBrandFilterChange={handleBrandChange}
+        statusFilter={""} // Để trống hoặc truyền giá trị mặc định theo thiết kế Filter gốc của bạn
+        onStatusFilterChange={() => {}}
+        totalCount={totalElements}
+        onAddNew={() => setModalMode("add")}
+      />
+
+      {/* Bảng chứa danh sách kèm hiệu ứng Loading xoay tròn */}
+      {loading ? (
+        <div className="text-center py-5 text-muted small">
+          <div
+            className="spinner-border spinner-border-sm text-primary me-2"
+            role="status"
+          ></div>
+          Đang kết nối API đồng bộ dữ liệu kho hàng...
+        </div>
+      ) : (
+        <ProductTable
+          products={products}
+          onView={(p) => handleOpenModal("view", p)}
+          onEdit={(p) => handleOpenModal("edit", p)}
+          onDelete={handleDeleteProduct}
         />
+      )}
 
-        {/* Bảng chứa danh sách kèm hiệu ứng Loading xoay tròn */}
-        {loading ? (
-            <div className="text-center py-5 text-muted small">
-              <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-              Đang kết nối API đồng bộ dữ liệu kho hàng...
-            </div>
-        ) : (
-            <ProductTable
-                products={products}
-                onView={(p) => handleOpenModal("view", p)}
-                onEdit={(p) => handleOpenModal("edit", p)}
-                onDelete={handleDeleteProduct}
-            />
-        )}
-
-        {/* Thanh Phân Trang đồng bộ API */}
-        <div className="mt-3 d-flex justify-content-end">
-          <AdminPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-          />
-        </div>
-
-        {/* Popup Modal dùng chung cho Xem chi tiết / Thêm mới / Chỉnh sửa */}
-        <ProductModal
-            mode={modalMode}
-            product={selectedProduct}
-            onClose={() => { setModalMode(null); setSelectedProduct(null); }}
-            onSave={handleSaveProduct}
+      {/* Thanh Phân Trang đồng bộ API */}
+      <div className="mt-3 d-flex justify-content-end">
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
         />
       </div>
+
+      {/* Popup Modal dùng chung cho Xem chi tiết / Thêm mới / Chỉnh sửa */}
+      <ProductModal
+        mode={modalMode}
+        product={selectedProduct}
+        onClose={() => {
+          setModalMode(null);
+          setSelectedProduct(null);
+        }}
+        onSave={handleSaveProduct}
+      />
+    </div>
   );
 };
 
