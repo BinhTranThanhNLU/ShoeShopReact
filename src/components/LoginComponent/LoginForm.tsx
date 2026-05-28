@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AuthInput } from "./AuthInput";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../../api/authApi.ts";
+import { useAuth } from "../../context/AuthContext";
 
 type LoginFieldErrors = Partial<Record<"email" | "password", string>>;
 
@@ -13,6 +14,7 @@ export const LoginForm = () => {
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [httpError, setHttpError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { setAuthData } = useAuth();
 
   const validateFields = () => {
     const nextErrors: LoginFieldErrors = {};
@@ -96,17 +98,14 @@ export const LoginForm = () => {
     try {
       const data = await authApi.login({ email: email.trim(), password });
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      setAuthData({ token: data.token, user: data.user });
 
       if (data.user.role?.name === "ADMIN") {
-        navigate("/admin");
-        window.location.reload();
+        navigate("/admin", { replace: true });
         return;
       }
 
-      navigate("/home");
-      window.location.reload();
+      navigate("/home", { replace: true });
     } catch (err: any) {
       const responseData = err?.response?.data;
 

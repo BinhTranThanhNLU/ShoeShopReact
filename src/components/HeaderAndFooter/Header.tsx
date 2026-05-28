@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 import type { CategoryModel } from "../../models/CategoryModel";
 import { categoryApi } from "../../api/categoryApi";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { cartApi } from "../../api/cartApi";
+import { useAuth } from "../../context/AuthContext";
 
 const Header = () => {
   const [categories, setCategories] = useState<CategoryModel[]>([]);
-  // Thêm state để lưu thông tin người dùng
-  const [user, setUser] = useState<any>(null);
   const [cartItemCount, setCartItemCount] = useState(0);
   const navigate = useNavigate();
+  const { user, token, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
     // 1. Lấy danh sách danh mục
@@ -23,27 +22,10 @@ const Header = () => {
       }
     };
 
-    // 2. Lấy thông tin người dùng nếu đã có token
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          const response = await axios.get("http://localhost:8080/api/users", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setUser(response.data);
-        } catch (error) {
-          console.error("Lỗi lấy thông tin người dùng:", error);
-          // Nếu token hết hạn hoặc lỗi, có thể xóa token
-          // localStorage.removeItem("token");
-        }
-      }
-    };
-
     // 3. Lấy số lượng sản phẩm trong giỏ
     const fetchCartCount = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
+      const currentToken = token;
+      if (!currentToken) {
         setCartItemCount(0);
         return;
       }
@@ -64,18 +46,16 @@ const Header = () => {
     window.addEventListener("cart-updated", handleCartUpdated);
 
     fetchCategories();
-    fetchUserData();
     fetchCartCount();
 
     return () => {
       window.removeEventListener("cart-updated", handleCartUpdated);
     };
-  }, []);
+  }, [token]);
 
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
+    logout();
     setCartItemCount(0);
     navigate("/login");
   };
@@ -165,7 +145,7 @@ const Header = () => {
                     </div>
 
                     <div className="dropdown-footer">
-                      {user ? (
+                        {isAuthenticated ? (
                           <button
                               onClick={handleLogout}
                               className="btn btn-outline-danger w-100"

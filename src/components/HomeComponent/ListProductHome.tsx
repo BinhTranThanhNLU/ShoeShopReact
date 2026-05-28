@@ -52,6 +52,7 @@ const ListProductHome: React.FC<{ products: ProductModel[] }> = ({
       <div className="container" data-aos="fade-up" data-aos-delay="100">
         <div className="row g-5">
           {products.slice(0, 8).map((product) => {
+            const productImages = product.images ?? product.image ?? [];
             const hasDiscount = (product.discountPercent ?? 0) > 0 && !!product.discountedPrice;
             const finalPrice = hasDiscount ? (product.discountedPrice as number) : product.price;
 
@@ -61,8 +62,8 @@ const ListProductHome: React.FC<{ products: ProductModel[] }> = ({
                 <div className="product-image">
                   <img
                     src={
-                      product.images && product.images.length > 0
-                        ? product.images[0].imageUrl
+                      productImages.length > 0
+                        ? productImages[0].imageUrl
                         : "/placeholder.jpg"
                     }
                     alt={product.name}

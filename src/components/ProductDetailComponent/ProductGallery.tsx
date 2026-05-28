@@ -3,7 +3,7 @@ import type { ProductModel } from "../../models/ProductModel";
 import { useEffect, useState } from "react";
 
 const ProductGallery: React.FC<{ product: ProductModel }> = ({ product }) => {
-  const images = product.images || [];
+  const images = product.images ?? product.image ?? [];
   const defaultImg = "/assets/img/no-image.png";
 
   const [activeImage, setActiveImage] = useState<string>(defaultImg);

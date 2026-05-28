@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../../api/authApi";
+import { useAuth } from "../../context/AuthContext";
 
 export const GoogleCallback = () => {
   const navigate = useNavigate();
+  const { setAuthData } = useAuth();
+  const isCalled = useRef(false); // 2. Tạo cờ chặn
 
   useEffect(() => {
     const handleGoogleCallback = async () => {
@@ -15,13 +18,16 @@ export const GoogleCallback = () => {
         return;
       }
 
+      // 3. Nếu cờ đã dựng (đã gọi API rồi) thì kết thúc luôn, không gọi lại nữa
+      if (isCalled.current) return;
+      isCalled.current = true; // Dựng cờ lên ngay lập tức
+
       try {
         const data = await authApi.googleCallback(code);
 
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        setAuthData({ token: data.token, user: data.user });
 
-        navigate("/home");
+        navigate("/home", { replace: true });
       } catch (error) {
         console.error(error);
         navigate("/login");

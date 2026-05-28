@@ -11,7 +11,8 @@ export interface ProductModel {
     totalQuantity: number;
     brand: string | null;
     category: string | null;
-    image: ProductImageModel[];
+    image?: ProductImageModel[];
+    images?: ProductImageModel[];
     variants: ProductVariantModel[];
     status: boolean;
     stock: number;
