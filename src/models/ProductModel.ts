@@ -12,7 +12,6 @@ export interface ProductModel {
     brand: string | null;
     category: string | null;
     image?: ProductImageModel[];
-    images?: ProductImageModel[];
     variants: ProductVariantModel[];
     status: boolean;
     stock: number;

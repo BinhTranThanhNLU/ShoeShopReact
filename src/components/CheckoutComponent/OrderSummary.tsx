@@ -63,7 +63,7 @@ const OrderSummary = () => {
   const shippingFee = cart.shippingCost || 0;
   const discountAmount = subtotal * discount;
 
-  const total = subtotal - discountAmount + shippingFee ;
+  const total = subtotal - discountAmount + shippingFee;
 
   return (
     <div className="order-summary" data-aos="fade-left" data-aos-delay="200">
@@ -78,11 +78,7 @@ const OrderSummary = () => {
             <div className="order-item" key={item.cartItemId}>
               <div className="order-item-image">
                 <img
-                  src={
-                    item.imageUrl
-                      ? `http://localhost:8080${item.imageUrl}`
-                      : "img/product/product-1.webp"
-                  }
+                  src={item.imageUrl || "/img/product/product-1.webp"}
                   alt={item.productName || "Sản phẩm"}
                   className="img-fluid"
                 />
@@ -94,7 +90,9 @@ const OrderSummary = () => {
                 </p>
                 <div className="order-item-price">
                   <span className="quantity">{item.quantity} ×</span>
-                  <span className="price">{item.unitPrice.toLocaleString("vi-VN")}₫</span>
+                  <span className="price">
+                    {item.unitPrice.toLocaleString("vi-VN")}₫
+                  </span>
                 </div>
               </div>
             </div>
@@ -146,7 +144,9 @@ const OrderSummary = () => {
 
           <div className="order-total d-flex justify-content-between">
             <span>Tổng cộng</span>
-            <span className="text-primary fw-bold">{total.toLocaleString("vi-VN")}₫</span>
+            <span className="text-primary fw-bold">
+              {total.toLocaleString("vi-VN")}₫
+            </span>
           </div>
         </div>
 

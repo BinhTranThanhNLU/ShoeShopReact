@@ -8,7 +8,7 @@ const ProductCard:React.FC<{product: ProductModel}> = ({product}) => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
 
-  const productImages = product.images ?? product.image ?? [];
+  const productImages = product.image ?? [];
   const mainImg = productImages[0]?.imageUrl || "/assets/img/no-image.png";
   const hoverImg = productImages[1]?.imageUrl || "/assets/img/no-image.png";
   const hasDiscount = (product.discountPercent ?? 0) > 0 && !!product.discountedPrice;
